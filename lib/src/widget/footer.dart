@@ -8,7 +8,7 @@ class BookPageFooter extends StatelessWidget {
     this.current = 1,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     this.progress = 0,
-    this.style = const TextStyle(color: Colors.black, fontSize: 10),
+    this.style = const TextStyle(color: Colors.black, fontSize: 10, height: 1),
     this.total = 0,
   });
 

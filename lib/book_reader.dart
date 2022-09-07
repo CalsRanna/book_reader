@@ -1,3 +1,3 @@
 library book_reader;
 
-export 'widget/reader.dart';
+export 'src/widget/reader.dart';

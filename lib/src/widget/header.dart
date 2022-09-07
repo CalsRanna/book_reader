@@ -4,7 +4,7 @@ class BookPageHeader extends StatelessWidget {
   const BookPageHeader({
     super.key,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    this.style = const TextStyle(color: Colors.black, fontSize: 10),
+    this.style = const TextStyle(color: Colors.black, fontSize: 10, height: 1),
     required this.text,
   });
 

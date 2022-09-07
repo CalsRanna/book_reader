@@ -1,5 +1,5 @@
-import 'package:book_reader/widget/catalogue.dart';
-import 'package:book_reader/widget/overlay.dart';
+import 'package:book_reader/src/widget/catalogue.dart';
+import 'package:book_reader/src/widget/overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -13,7 +13,6 @@ class BookReader extends StatefulWidget {
     required this.chapters,
     this.index,
     required this.name,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     required this.onChapterChanged,
   });
 
@@ -21,7 +20,6 @@ class BookReader extends StatefulWidget {
   final List<String> chapters;
   final int? index;
   final String name;
-  final EdgeInsets padding;
   final Future<String> Function(int index) onChapterChanged;
 
   @override
@@ -33,9 +31,11 @@ class _BookReaderState extends State<BookReader> {
   late PageController controller;
   late OverlayEntry entry;
   int index = 0;
+  EdgeInsets padding = const EdgeInsets.all(16);
   List<String>? pages;
   bool showOverlay = false;
   late Size size;
+  double top = 0;
 
   @override
   void initState() {
@@ -47,10 +47,8 @@ class _BookReaderState extends State<BookReader> {
   @override
   void didChangeDependencies() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-    setState(() {
-      size = MediaQuery.of(context).size;
-    });
-    fetchContent();
+    calculateAvailableSize();
+    // fetchContent();
     super.didChangeDependencies();
   }
 
@@ -60,22 +58,26 @@ class _BookReaderState extends State<BookReader> {
     super.dispose();
   }
 
-  void fetchContent() async {
-    var content = await widget.onChapterChanged(index);
-
+  void calculateAvailableSize() {
+    final globalSize = MediaQuery.of(context).size;
+    final globalPadding = MediaQuery.of(context).padding;
     const headerHeight = 26;
     const footerHeight = 26;
-    final width = size.width - widget.padding.horizontal;
-    final height = size.height -
-        widget.padding.vertical -
+    final width = globalSize.width - padding.horizontal;
+    final height = globalSize.height -
+        globalPadding.vertical -
+        padding.vertical -
         headerHeight -
-        footerHeight -
-        19;
-
+        footerHeight;
     setState(() {
-      content = content;
-      pages = Paginator(size: Size(width, height)).paginate(content);
+      size = Size(width, height);
     });
+  }
+
+  Future<List<String>> fetchContent() async {
+    var content = await widget.onChapterChanged(index);
+    var pages = Paginator(size: size).paginate(content);
+    return pages;
   }
 
   @override
@@ -85,21 +87,29 @@ class _BookReaderState extends State<BookReader> {
       overlays: showOverlay ? [SystemUiOverlay.top] : [],
     );
 
-    var header = widget.chapters[index];
-
     return Scaffold(
-      body: PageView.builder(
-        controller: controller,
-        itemBuilder: (context, index) => BookPage(
-          content: pages?[index] ?? '',
-          current: index + 1,
-          header: header,
-          total: pages?.length ?? 0,
-          onPageDown: handlePageDown,
-          onPageUp: handlePageUp,
-          onTap: handleTap,
-        ),
-        itemCount: pages?.length,
+      body: FutureBuilder(
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            var pages = snapshot.data as List<String>;
+            return PageView.builder(
+              controller: controller,
+              itemBuilder: (context, i) => BookPage(
+                content: pages[index],
+                current: i + 1,
+                header: i == 0 ? widget.name : widget.chapters[index],
+                total: pages.length,
+                onPageDown: handlePageDown,
+                onPageUp: handlePageUp,
+                onTap: handleTap,
+              ),
+              itemCount: pages.length,
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
+        },
+        future: fetchContent(),
       ),
     );
   }
@@ -152,11 +162,12 @@ class _BookReaderState extends State<BookReader> {
   }
 
   void handleChapterChanged(int index) async {
-    var content = await widget.onChapterChanged(index);
+    controller.jumpTo(0);
     setState(() {
       index = index;
-      content = content;
     });
+    // await Future.delayed(const Duration(seconds: 1));
+    // fetchContent();
   }
 
   void removeOverlay() {

@@ -1,5 +1,5 @@
-import 'package:book_reader/widget/footer.dart';
-import 'package:book_reader/widget/header.dart';
+import 'package:book_reader/src/widget/footer.dart';
+import 'package:book_reader/src/widget/header.dart';
 import 'package:flutter/material.dart';
 
 class BookPage extends StatelessWidget {
@@ -34,6 +34,7 @@ class BookPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: MediaQuery.of(context).padding.top),
               BookPageHeader(text: header),
               Expanded(
                 child: Container(
@@ -44,7 +45,8 @@ class BookPage extends StatelessWidget {
               BookPageFooter(
                 current: current,
                 total: total,
-              )
+              ),
+              SizedBox(height: MediaQuery.of(context).padding.bottom),
             ],
           ),
         )
