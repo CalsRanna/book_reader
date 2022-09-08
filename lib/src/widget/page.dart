@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class BookPage extends StatelessWidget {
   const BookPage({
     super.key,
+    this.backgroundColor,
     required this.content,
     required this.header,
     required this.current,
@@ -14,6 +15,7 @@ class BookPage extends StatelessWidget {
     this.onTap,
   });
 
+  final Color? backgroundColor;
   final String content;
   final int current;
   final String header;
@@ -27,7 +29,7 @@ class BookPage extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          color: Colors.grey,
+          color: backgroundColor ?? Colors.white,
         ),
         GestureDetector(
           onTapUp: (details) => handleTap(context, details),

@@ -10,16 +10,22 @@ class BookReader extends StatefulWidget {
   const BookReader({
     super.key,
     required this.author,
+    this.backgroundColor,
     required this.chapters,
+    required this.cover,
     this.index,
     required this.name,
+    this.onBookPressed,
     required this.onChapterChanged,
   });
 
   final String author;
+  final Color? backgroundColor;
   final List<String> chapters;
+  final Image cover;
   final int? index;
   final String name;
+  final void Function()? onBookPressed;
   final Future<String> Function(int index) onChapterChanged;
 
   @override
@@ -30,12 +36,10 @@ class _BookReaderState extends State<BookReader> {
   late String content;
   late PageController controller;
   late OverlayEntry entry;
-  int index = 0;
+  late int index;
   EdgeInsets padding = const EdgeInsets.all(16);
-  List<String>? pages;
   bool showOverlay = false;
   late Size size;
-  double top = 0;
 
   @override
   void initState() {
@@ -46,9 +50,7 @@ class _BookReaderState extends State<BookReader> {
 
   @override
   void didChangeDependencies() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     calculateAvailableSize();
-    // fetchContent();
     super.didChangeDependencies();
   }
 
@@ -95,11 +97,12 @@ class _BookReaderState extends State<BookReader> {
             return PageView.builder(
               controller: controller,
               itemBuilder: (context, i) => BookPage(
-                content: pages[index],
+                backgroundColor: widget.backgroundColor,
+                content: pages[i],
                 current: i + 1,
                 header: i == 0 ? widget.name : widget.chapters[index],
                 total: pages.length,
-                onPageDown: handlePageDown,
+                onPageDown: (current) => handlePageDown(current, pages.length),
                 onPageUp: handlePageUp,
                 onTap: handleTap,
               ),
@@ -114,21 +117,31 @@ class _BookReaderState extends State<BookReader> {
     );
   }
 
-  void handlePageDown(int current) {
-    if (pages != null && current < pages!.length) {
+  void handlePageDown(int current, int total) {
+    if (current < total) {
       controller.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.linear,
       );
+    } else if (current == total && index < widget.chapters.length) {
+      setState(() {
+        index = index + 1;
+      });
+      controller.jumpTo(0);
     }
   }
 
   void handlePageUp(int current) {
-    if (current > 0) {
+    if (current > 1) {
       controller.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.linear,
       );
+    } else if (current == 1 && index > 0) {
+      setState(() {
+        index = index - 1;
+      });
+      controller.jumpTo(0);
     }
   }
 
@@ -141,8 +154,12 @@ class _BookReaderState extends State<BookReader> {
         builder: (context) => BookPageOverlay(
           author: widget.author,
           chapters: widget.chapters,
+          cover: widget.cover,
+          index: index,
           name: widget.name,
-          onCatalogueTapped: navigateCatalogue,
+          onBookPressed: widget.onBookPressed,
+          onCataloguePressed: navigateCatalogue,
+          onChapterChanged: handleChapterChanged,
           onTap: removeOverlay,
         ),
       );
@@ -161,13 +178,11 @@ class _BookReaderState extends State<BookReader> {
     ));
   }
 
-  void handleChapterChanged(int index) async {
+  void handleChapterChanged(int index) {
     controller.jumpTo(0);
     setState(() {
-      index = index;
+      this.index = index;
     });
-    // await Future.delayed(const Duration(seconds: 1));
-    // fetchContent();
   }
 
   void removeOverlay() {

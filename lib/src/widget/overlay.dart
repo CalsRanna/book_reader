@@ -5,15 +5,23 @@ class BookPageOverlay extends StatefulWidget {
     super.key,
     required this.author,
     required this.chapters,
+    required this.cover,
+    this.index,
     required this.name,
-    this.onCatalogueTapped,
+    this.onBookPressed,
+    this.onCataloguePressed,
+    required this.onChapterChanged,
     this.onTap,
   });
 
   final String author;
   final List<String> chapters;
+  final Image cover;
+  final int? index;
   final String name;
-  final void Function()? onCatalogueTapped;
+  final void Function()? onBookPressed;
+  final void Function()? onCataloguePressed;
+  final void Function(int index) onChapterChanged;
   final void Function()? onTap;
 
   @override
@@ -21,7 +29,16 @@ class BookPageOverlay extends StatefulWidget {
 }
 
 class _BookPageOverlayState extends State<BookPageOverlay> {
+  late int index;
+  double progress = 0;
   bool visible = false;
+
+  @override
+  void initState() {
+    index = widget.index ?? 0;
+    progress = index / widget.chapters.length;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +46,9 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
       appBar: AppBar(
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () => handleChapterChanged(index),
             child: Row(
-              children: const [
-                Icon(Icons.refresh_outlined, color: Colors.white),
-                Text('刷新', style: TextStyle(color: Colors.white))
-              ],
+              children: const [Icon(Icons.refresh_outlined), Text('刷新')],
             ),
           ),
           IconButton(
@@ -62,10 +76,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
                 children: [
                   Row(
                     children: [
-                      Image.network(
-                        'https://images-cn.ssl-images-amazon.cn/images/I/51k6CY+4PUL._SY346_.jpg',
-                        height: 64,
-                      ),
+                      widget.cover,
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -77,7 +88,10 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      OutlinedButton(onPressed: () {}, child: const Text('详情')),
+                      OutlinedButton(
+                        onPressed: widget.onBookPressed,
+                        child: const Text('详情'),
+                      ),
                     ],
                   ),
                   Container(
@@ -159,7 +173,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {},
-                    icon: const Icon(Icons.play_arrow_outlined),
+                    icon: const Icon(Icons.play_circle_outlined),
                     label: const Text('自动阅读'),
                   ),
                 ),
@@ -167,7 +181,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {},
-                    icon: const Icon(Icons.subscriptions_outlined),
+                    icon: const Icon(Icons.change_circle_outlined),
                     label: const Text('换源'),
                   ),
                 ),
@@ -175,11 +189,21 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
             ),
             Row(
               children: [
-                TextButton(onPressed: () {}, child: const Text('上一章')),
-                Expanded(
-                  child: Slider.adaptive(value: 0.5, onChanged: (value) {}),
+                TextButton(
+                  onPressed: () => handleChapterChanged(index - 1),
+                  child: const Text('上一章'),
                 ),
-                TextButton(onPressed: () {}, child: const Text('下一章')),
+                Expanded(
+                  child: Slider.adaptive(
+                    value: progress,
+                    onChanged: handleProgressChanged,
+                    onChangeEnd: handleProgressChangedEnd,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => handleChapterChanged(index + 1),
+                  child: const Text('下一章'),
+                ),
               ],
             ),
             Row(
@@ -245,7 +269,41 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
     }
   }
 
+  void handleChapterChanged(int index) {
+    if (index < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已经是第一章')),
+      );
+    } else if (index > widget.chapters.length) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已经是最后一章')),
+      );
+    } else {
+      setState(() {
+        this.index = index;
+      });
+      widget.onChapterChanged(index);
+    }
+  }
+
+  void handleProgressChanged(double value) {
+    setState(() {
+      progress = value;
+    });
+  }
+
+  void handleProgressChangedEnd(double value) {
+    var index = (value * widget.chapters.length).toInt();
+    if (index >= widget.chapters.length) {
+      index = widget.chapters.length - 1;
+    }
+    setState(() {
+      this.index = index;
+    });
+    widget.onChapterChanged(index);
+  }
+
   void handleNavigateCatalogue() {
-    widget.onCatalogueTapped?.call();
+    widget.onCataloguePressed?.call();
   }
 }
