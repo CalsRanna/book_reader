@@ -11,6 +11,7 @@ class BookPageOverlay extends StatefulWidget {
     this.onBookPressed,
     this.onCataloguePressed,
     required this.onChapterChanged,
+    this.onPop,
     this.onTap,
   });
 
@@ -22,6 +23,7 @@ class BookPageOverlay extends StatefulWidget {
   final void Function()? onBookPressed;
   final void Function()? onCataloguePressed;
   final void Function(int index) onChapterChanged;
+  final void Function()? onPop;
   final void Function()? onTap;
 
   @override
@@ -57,7 +59,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
           ),
         ],
         leading: IconButton(
-          onPressed: () {},
+          onPressed: handlePop,
           icon: const Icon(Icons.chevron_left_outlined),
         ),
       ),
@@ -251,6 +253,10 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
         ),
       ),
     );
+  }
+
+  void handlePop() {
+    widget.onPop?.call();
   }
 
   void showModal() {

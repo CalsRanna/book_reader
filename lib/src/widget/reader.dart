@@ -67,7 +67,8 @@ class _BookReaderState extends State<BookReader> {
     const footerHeight = 26;
     final width = globalSize.width - padding.horizontal;
     final height = globalSize.height -
-        globalPadding.vertical -
+        // globalPadding.vertical -
+        (globalPadding.top + 8) -
         padding.vertical -
         headerHeight -
         footerHeight;
@@ -160,6 +161,7 @@ class _BookReaderState extends State<BookReader> {
           onBookPressed: widget.onBookPressed,
           onCataloguePressed: navigateCatalogue,
           onChapterChanged: handleChapterChanged,
+          onPop: handlePop,
           onTap: removeOverlay,
         ),
       );
@@ -183,6 +185,14 @@ class _BookReaderState extends State<BookReader> {
     setState(() {
       this.index = index;
     });
+  }
+
+  void handlePop() {
+    entry.remove();
+    setState(() {
+      showOverlay = true;
+    });
+    Navigator.of(context).pop();
   }
 
   void removeOverlay() {

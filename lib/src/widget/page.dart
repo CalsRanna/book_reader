@@ -48,7 +48,8 @@ class BookPage extends StatelessWidget {
                 current: current,
                 total: total,
               ),
-              SizedBox(height: MediaQuery.of(context).padding.bottom),
+              // SizedBox(height: MediaQuery.of(context).padding.bottom),
+              const SizedBox(height: 8),
             ],
           ),
         )
