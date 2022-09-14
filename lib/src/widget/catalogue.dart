@@ -1,19 +1,20 @@
+import 'package:book_reader/src/widget/query.dart';
 import 'package:flutter/material.dart';
 
 class BookCatalogue extends StatelessWidget {
   const BookCatalogue({
     super.key,
-    required this.chapters,
-    required this.onChapterChanged,
+    this.onChapterChanged,
     required this.onWillPop,
   });
 
-  final List<String> chapters;
-  final void Function(int index) onChapterChanged;
+  final void Function(int index)? onChapterChanged;
   final Future<bool> Function() onWillPop;
 
   @override
   Widget build(BuildContext context) {
+    var chapters = BookReaderQuery.of(context)?.chapters;
+
     return WillPopScope(
       onWillPop: onWillPop,
       child: Scaffold(
@@ -31,10 +32,10 @@ class BookCatalogue extends StatelessWidget {
         ),
         body: ListView.builder(
           itemBuilder: (context, index) => ListTile(
-            title: Text(chapters[index]),
+            title: Text(chapters?[index] ?? '$index'),
             onTap: () => handleChapterChange(context, index),
           ),
-          itemCount: chapters.length,
+          itemCount: chapters?.length,
         ),
       ),
     );
@@ -47,7 +48,7 @@ class BookCatalogue extends StatelessWidget {
 
   void handleChapterChange(BuildContext context, int index) {
     onWillPop();
-    onChapterChanged(index);
+    onChapterChanged?.call(index);
     Navigator.of(context).pop();
   }
 }

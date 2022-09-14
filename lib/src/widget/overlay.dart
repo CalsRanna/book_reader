@@ -1,3 +1,5 @@
+import 'package:book_reader/src/widget/catalogue.dart';
+import 'package:book_reader/src/widget/query.dart';
 import 'package:flutter/material.dart';
 
 class BookPageOverlay extends StatefulWidget {
@@ -6,25 +8,29 @@ class BookPageOverlay extends StatefulWidget {
     required this.author,
     required this.chapters,
     required this.cover,
+    required this.duration,
     this.index,
     required this.name,
     this.onBookPressed,
-    this.onCataloguePressed,
+    this.onCatalogueNavigated,
     required this.onChapterChanged,
+    this.onOverlayClosed,
+    this.onRefresh,
     this.onPop,
-    this.onTap,
   });
 
   final String author;
   final List<String> chapters;
   final Image cover;
+  final Duration duration;
   final int? index;
   final String name;
   final void Function()? onBookPressed;
-  final void Function()? onCataloguePressed;
+  final void Function()? onCatalogueNavigated;
   final void Function(int index) onChapterChanged;
+  final void Function()? onOverlayClosed;
   final void Function()? onPop;
-  final void Function()? onTap;
+  final void Function()? onRefresh;
 
   @override
   State<BookPageOverlay> createState() => _BookPageOverlayState();
@@ -45,120 +51,217 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          TextButton(
-            onPressed: () => handleChapterChanged(index),
-            child: Row(
-              children: const [Icon(Icons.refresh_outlined), Text('刷新')],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.more_horiz_outlined),
-            onPressed: showModal,
-          ),
-        ],
-        leading: IconButton(
-          onPressed: handlePop,
-          icon: const Icon(Icons.chevron_left_outlined),
-        ),
-      ),
       backgroundColor: Colors.transparent,
       body: Column(
         children: [
-          if (visible)
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Colors.white,
-              ),
-              margin: const EdgeInsets.all(8),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      widget.cover,
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(widget.name),
-                            Text(widget.author),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton(
-                        onPressed: widget.onBookPressed,
-                        child: const Text('详情'),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey, width: 0.5),
-                      ),
-                    ),
-                    margin: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        onPressed: () {},
-                        child: Column(
-                          children: const [
-                            Icon(Icons.bookmark_add_outlined),
-                            Text('添加书签')
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Column(
-                          children: const [
-                            Icon(Icons.search_outlined),
-                            Text('搜索')
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Column(
-                          children: const [
-                            Icon(Icons.find_replace_outlined),
-                            Text('过滤净化')
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Column(
-                          children: const [
-                            Icon(Icons.ios_share_outlined),
-                            Text('分享')
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          BookPageOverlayAppBar(
+            duration: widget.duration,
+            onPop: widget.onPop,
+            onRefresh: widget.onRefresh,
+          ),
           Expanded(
             child: GestureDetector(
               onTap: handleTap,
               child: Container(color: Colors.transparent),
             ),
           ),
+          BookPageOverlayBottomBar(
+            duration: widget.duration,
+            index: index,
+            onCatalogueNavigated: widget.onCatalogueNavigated,
+          ),
         ],
       ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        height: 185,
+    );
+  }
+
+  void handlePop() {
+    widget.onPop?.call();
+  }
+
+  void showModal() {
+    setState(() {
+      visible = !visible;
+    });
+  }
+
+  void handleTap() {
+    if (visible) {
+      setState(() {
+        visible = false;
+      });
+    } else {
+      widget.onOverlayClosed?.call();
+    }
+  }
+
+  void handleChapterChanged(int index) {
+    if (index < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已经是第一章')),
+      );
+    } else if (index > widget.chapters.length) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已经是最后一章')),
+      );
+    } else {
+      setState(() {
+        this.index = index;
+      });
+      widget.onChapterChanged(index);
+    }
+  }
+
+  void handleProgressChanged(double value) {
+    setState(() {
+      progress = value;
+    });
+  }
+
+  void handleProgressChangedEnd(double value) {
+    var index = (value * widget.chapters.length).toInt();
+    if (index >= widget.chapters.length) {
+      index = widget.chapters.length - 1;
+    }
+    setState(() {
+      this.index = index;
+    });
+    widget.onChapterChanged(index);
+  }
+
+  void handleNavigateCatalogue() {
+    widget.onCatalogueNavigated?.call();
+  }
+}
+
+class BookPageOverlayAppBar extends StatefulWidget {
+  const BookPageOverlayAppBar({
+    super.key,
+    required this.duration,
+    this.onPop,
+    this.onRefresh,
+  });
+
+  final Duration duration;
+  final void Function()? onPop;
+  final void Function()? onRefresh;
+
+  @override
+  State<BookPageOverlayAppBar> createState() => _BookPageOverlayAppBarState();
+}
+
+class _BookPageOverlayAppBarState extends State<BookPageOverlayAppBar>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<Offset> animation;
+
+  @override
+  void initState() {
+    controller = AnimationController(duration: widget.duration, vsync: this);
+    animation = Tween(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(controller);
+    controller.forward();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.reverse();
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: animation,
+      child: PhysicalModel(
+        color: Colors.black,
+        elevation: 0.5,
+        child: Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: widget.onPop,
+                icon: const Icon(Icons.chevron_left_outlined),
+              ),
+              const Expanded(child: SizedBox()),
+              TextButton(
+                onPressed: widget.onRefresh,
+                child: Row(
+                  children: const [Icon(Icons.refresh_outlined), Text('刷新')],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.more_horiz_outlined),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BookPageOverlayBottomBar extends StatefulWidget {
+  const BookPageOverlayBottomBar({
+    super.key,
+    required this.duration,
+    this.index,
+    this.onCatalogueNavigated,
+    this.onChapterChanged,
+  });
+
+  final Duration duration;
+  final int? index;
+  final void Function()? onCatalogueNavigated;
+  final void Function(int)? onChapterChanged;
+
+  @override
+  State<BookPageOverlayBottomBar> createState() =>
+      _BookPageOverlayBottomBarState();
+}
+
+class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
+    with SingleTickerProviderStateMixin {
+  late Animation<Offset> animation;
+  late AnimationController controller;
+  late int index;
+  late double progress;
+
+  @override
+  void initState() {
+    controller = AnimationController(duration: widget.duration, vsync: this);
+    animation = Tween(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(controller);
+    controller.forward();
+
+    index = widget.index ?? 0;
+    progress = 0;
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.reverse();
+    controller.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: animation,
+      child: Container(
+        color: Theme.of(context).colorScheme.surface,
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -175,8 +278,8 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {},
-                    icon: const Icon(Icons.play_circle_outlined),
-                    label: const Text('自动阅读'),
+                    icon: const Icon(Icons.chat_outlined),
+                    label: const Text('评论'),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -198,8 +301,8 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
                 Expanded(
                   child: Slider.adaptive(
                     value: progress,
-                    onChanged: handleProgressChanged,
-                    onChangeEnd: handleProgressChangedEnd,
+                    onChanged: (value) {},
+                    onChangeEnd: (value) {},
                   ),
                 ),
                 TextButton(
@@ -212,7 +315,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  onPressed: handleNavigateCatalogue,
+                  onPressed: widget.onCatalogueNavigated,
                   child: Column(
                     children: const [
                       Icon(Icons.list_outlined),
@@ -255,61 +358,18 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
     );
   }
 
-  void handlePop() {
-    widget.onPop?.call();
-  }
-
-  void showModal() {
-    setState(() {
-      visible = !visible;
-    });
-  }
-
-  void handleTap() {
-    if (visible) {
-      setState(() {
-        visible = false;
-      });
-    } else {
-      widget.onTap?.call();
-    }
-  }
-
   void handleChapterChanged(int index) {
+    var length = BookReaderQuery.of(context)?.chapters?.length;
     if (index < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('已经是第一章')),
-      );
-    } else if (index > widget.chapters.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('已经是最后一章')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('已经是第一章'),
+      ));
+    } else if (length != null && index >= length) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('已经是最后一章'),
+      ));
     } else {
-      setState(() {
-        this.index = index;
-      });
-      widget.onChapterChanged(index);
+      widget.onChapterChanged?.call(index);
     }
-  }
-
-  void handleProgressChanged(double value) {
-    setState(() {
-      progress = value;
-    });
-  }
-
-  void handleProgressChangedEnd(double value) {
-    var index = (value * widget.chapters.length).toInt();
-    if (index >= widget.chapters.length) {
-      index = widget.chapters.length - 1;
-    }
-    setState(() {
-      this.index = index;
-    });
-    widget.onChapterChanged(index);
-  }
-
-  void handleNavigateCatalogue() {
-    widget.onCataloguePressed?.call();
   }
 }
