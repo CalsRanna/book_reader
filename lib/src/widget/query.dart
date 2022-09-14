@@ -1,29 +1,39 @@
 import 'package:flutter/material.dart';
 
 class BookReaderQuery extends InheritedWidget {
-  final int index;
-  final List<String>? chapters;
-  final int cursor;
-  final Duration duration;
-  final double progress;
-
   const BookReaderQuery({
     super.key,
-    this.index = 0,
-    this.chapters,
-    this.cursor = 0,
-    this.duration = const Duration(milliseconds: 200),
-    this.progress = 0,
+    required this.cursor,
+    required this.duration,
+    required this.index,
+    required this.progress,
+    required this.total,
+    required this.withExtraButtons,
     required super.child,
+    this.onCatalogueNavigated,
+    this.onCommentNavigated,
+    this.onRefresh,
+    this.onSourceNavigated,
   });
+
+  final int cursor;
+  final Duration duration;
+  final int index;
+  final double progress;
+  final int total;
+  final bool withExtraButtons;
+  final void Function()? onCatalogueNavigated;
+  final void Function()? onCommentNavigated;
+  final void Function()? onRefresh;
+  final void Function()? onSourceNavigated;
 
   @override
   bool updateShouldNotify(BookReaderQuery oldWidget) {
     return index != oldWidget.index ||
-        chapters != oldWidget.chapters ||
         cursor != oldWidget.cursor ||
         duration != oldWidget.duration ||
-        progress != oldWidget.progress;
+        progress != oldWidget.progress ||
+        total != oldWidget.total;
   }
 
   static BookReaderQuery? of(BuildContext context) {

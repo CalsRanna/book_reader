@@ -1,6 +1,5 @@
 import 'package:book_reader/src/widget/footer.dart';
 import 'package:book_reader/src/widget/header.dart';
-import 'package:book_reader/src/widget/overlay.dart';
 import 'package:flutter/material.dart';
 
 class BookPage extends StatelessWidget {
@@ -22,7 +21,7 @@ class BookPage extends StatelessWidget {
   final String header;
   final int total;
   final void Function()? onOverlayOpened;
-  final void Function(int page)? onPageDown;
+  final void Function(int page, int total)? onPageDown;
   final void Function(int page)? onPageUp;
 
   @override
@@ -60,7 +59,7 @@ class BookPage extends StatelessWidget {
     if (position.dx < width ~/ 3) {
       onPageUp?.call(current);
     } else if (position.dx > width ~/ 3 * 2) {
-      onPageDown?.call(current);
+      onPageDown?.call(current, total);
     } else {
       onOverlayOpened?.call();
     }

@@ -1,12 +1,14 @@
-import 'package:book_reader/src/widget/catalogue.dart';
-import 'package:book_reader/src/widget/overlay.dart';
-import 'package:book_reader/src/widget/query.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../tool/paginator.dart';
+import 'overlay.dart';
 import 'page.dart';
+import 'query.dart';
 
+/// [BookReader] is a widget used to read book. It provide some way to
+/// paginate and can be customered by you own choice since we provide
+/// many params to do that.
 class BookReader extends StatefulWidget {
   const BookReader({
     super.key,
@@ -14,25 +16,58 @@ class BookReader extends StatefulWidget {
     this.backgroundColor,
     required this.chapters,
     this.cover,
+    this.cursor,
     this.duration,
     this.index,
     this.name,
     this.title,
+    this.withExtraButtons,
     this.onBookPressed,
     this.onCatalogueNavigated,
     required this.onChapterChanged,
   });
 
+  /// Author of book, can be null if you weren't sure about it.
   final String? author;
+
+  /// If [backgroundColor] is null, the default value is [Colors.white].
   final Color? backgroundColor;
   final List<String> chapters;
   final Image? cover;
+
+  /// The value of [cursor] is the index of pages paginated with style
+  /// given. If it is null then the default value is 0.
+  final int? cursor;
+
+  /// Duration for animation, include app and bottom bar slide transition,
+  /// and page transtion automated.
   final Duration? duration;
+
+  /// Current index of chapters.
   final int? index;
+
+  /// Name of book, used to displayed in header and detail modal.
   final String? name;
+
+  /// Title of chapter, used to displayed in header while is not first page.
   final String? title;
+
+  /// Determine whether show extra buttons or not. If it was null, the
+  /// default value is true.
+  final bool? withExtraButtons;
+
+  /// If [onBookPressed] is null, then the button of detail should not be
+  /// availabled. And this function is used to navigate to a new page to
+  /// show detail of book and something else you wanna display.
   final void Function()? onBookPressed;
+
+  /// If this function is null then the button of catalogue should not be
+  /// available. And this is used to navigate to the new page to display
+  /// custom catalogue page.
   final void Function()? onCatalogueNavigated;
+
+  /// When chapter changed or first inited, use this function to fetch
+  /// data and do some thing you need.
   final Future<String> Function(int index) onChapterChanged;
 
   @override
@@ -42,17 +77,22 @@ class BookReader extends StatefulWidget {
 class _BookReaderState extends State<BookReader> {
   late String content;
   late PageController controller;
+  late int cursor;
   late Duration duration;
-  late OverlayEntry entry;
   late int index;
   EdgeInsets padding = const EdgeInsets.all(16);
   bool showOverlay = false;
   late Size size;
+  late int total;
+  late bool withExtraButtons;
 
   @override
   void initState() {
+    cursor = widget.cursor ?? 0;
     duration = widget.duration ?? const Duration(milliseconds: 200);
     index = widget.index ?? 0;
+    total = widget.chapters.length;
+    withExtraButtons = widget.withExtraButtons ?? true;
 
     controller = PageController();
     super.initState();
@@ -102,7 +142,12 @@ class _BookReaderState extends State<BookReader> {
 
     return Scaffold(
       body: BookReaderQuery(
-        chapters: widget.chapters,
+        cursor: cursor,
+        duration: duration,
+        index: index,
+        progress: 0,
+        total: total,
+        withExtraButtons: withExtraButtons,
         child: WillPopScope(
           onWillPop: handleWillPop,
           child: FutureBuilder(
@@ -117,10 +162,9 @@ class _BookReaderState extends State<BookReader> {
                         backgroundColor: widget.backgroundColor,
                         content: pages[i],
                         current: i + 1,
-                        header: widget.name ?? widget.title ?? '未知',
+                        header: widget.name ?? widget.title ?? '第${i + 1}章',
                         total: pages.length,
-                        onPageDown: (current) =>
-                            handlePageDown(current, pages.length),
+                        onPageDown: handlePageDown,
                         onPageUp: handlePageUp,
                         onOverlayOpened: handleTap,
                       ),
@@ -141,7 +185,8 @@ class _BookReaderState extends State<BookReader> {
                 );
               } else {
                 return const Center(
-                    child: CircularProgressIndicator.adaptive());
+                  child: CircularProgressIndicator.adaptive(),
+                );
               }
             },
             future: fetchContent(),
@@ -151,31 +196,41 @@ class _BookReaderState extends State<BookReader> {
     );
   }
 
+  Future<bool> handleWillPop() {
+    setState(() {
+      showOverlay = false;
+    });
+    Navigator.of(context).pop();
+    return Future.value(true);
+  }
+
   void handlePageDown(int current, int total) {
     if (current < total) {
-      controller.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.linear,
-      );
-    } else if (current == total && index < widget.chapters.length) {
+      controller.nextPage(duration: duration, curve: Curves.linear);
+    } else if (current == total && index < this.total - 1) {
       setState(() {
         index = index + 1;
       });
       controller.jumpTo(0);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('已经是最后一页'),
+      ));
     }
   }
 
   void handlePageUp(int current) {
     if (current > 1) {
-      controller.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.linear,
-      );
+      controller.previousPage(duration: duration, curve: Curves.linear);
     } else if (current == 1 && index > 0) {
       setState(() {
         index = index - 1;
       });
       controller.jumpTo(0);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('已经是第一页'),
+      ));
     }
   }
 
@@ -183,58 +238,9 @@ class _BookReaderState extends State<BookReader> {
     setState(() {
       showOverlay = !showOverlay;
     });
-    // if (showOverlay) {
-    //   entry = OverlayEntry(
-    //     builder: (context) => BookPageOverlay(
-    //       author: widget.author,
-    //       chapters: widget.chapters,
-    //       cover: widget.cover,
-    //       index: index,
-    //       name: widget.name,
-    //       onBookPressed: widget.onBookPressed,
-    //       onCataloguePressed: navigateCatalogue,
-    //       onChapterChanged: handleChapterChanged,
-    //       onPop: handlePop,
-    //       onTap: removeOverlay,
-    //     ),
-    //   );
-    //   Overlay.of(context)?.insert(entry);
-    // }
-  }
-
-  void navigateCatalogue() {
-    entry.remove();
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => BookCatalogue(
-        onChapterChanged: handleChapterChanged,
-        onWillPop: handleWillPop,
-      ),
-    ));
-  }
-
-  void handleChapterChanged(int index) {
-    controller.jumpTo(0);
-    setState(() {
-      this.index = index;
-    });
   }
 
   void handlePop() {
     Navigator.of(context).pop();
-  }
-
-  void removeOverlay() {
-    entry.remove();
-    setState(() {
-      showOverlay = false;
-    });
-  }
-
-  Future<bool> handleWillPop() {
-    setState(() {
-      showOverlay = false;
-    });
-    Navigator.of(context).pop();
-    return Future.value(true);
   }
 }
