@@ -1,3 +1,4 @@
+import 'package:book_reader/src/widget/query.dart';
 import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
@@ -7,7 +8,6 @@ class BookPageOverlay extends StatefulWidget {
   const BookPageOverlay({
     super.key,
     required this.author,
-    required this.chapters,
     required this.cover,
     required this.duration,
     this.index,
@@ -20,7 +20,6 @@ class BookPageOverlay extends StatefulWidget {
   });
 
   final String author;
-  final List<String> chapters;
   final Image cover;
   final Duration duration;
   final int? index;
@@ -43,7 +42,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   @override
   void initState() {
     index = widget.index ?? 0;
-    progress = index / widget.chapters.length;
+    progress = index / BookReaderQuery.of(context)!.total;
     super.initState();
   }
 
@@ -98,7 +97,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('已经是第一章')),
       );
-    } else if (index > widget.chapters.length) {
+    } else if (index > BookReaderQuery.of(context)!.total) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('已经是最后一章')),
       );
@@ -117,9 +116,9 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   }
 
   void handleProgressChangedEnd(double value) {
-    var index = (value * widget.chapters.length).toInt();
-    if (index >= widget.chapters.length) {
-      index = widget.chapters.length - 1;
+    var index = (value * BookReaderQuery.of(context)!.total).toInt();
+    if (index >= BookReaderQuery.of(context)!.total) {
+      index = BookReaderQuery.of(context)!.total - 1;
     }
     setState(() {
       this.index = index;

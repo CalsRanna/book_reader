@@ -8,9 +8,9 @@ void main() {
     // final calculator = Calculator();
     final reader = BookReader(
       author: 'authro',
-      chapters: const [],
       cover: Image.network('cover'),
       name: 'name',
+      total: 100,
       onChapterChanged: (index) => Future.value(index.toString()),
     );
 

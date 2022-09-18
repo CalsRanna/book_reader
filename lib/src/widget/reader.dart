@@ -14,13 +14,13 @@ class BookReader extends StatefulWidget {
     super.key,
     this.author,
     this.backgroundColor,
-    required this.chapters,
     this.cover,
     this.cursor,
     this.duration,
     this.index,
     this.name,
     this.title,
+    this.total,
     this.withExtraButtons,
     this.onBookPressed,
     this.onCatalogueNavigated,
@@ -32,7 +32,6 @@ class BookReader extends StatefulWidget {
 
   /// If [backgroundColor] is null, the default value is [Colors.white].
   final Color? backgroundColor;
-  final List<String> chapters;
   final Image? cover;
 
   /// The value of [cursor] is the index of pages paginated with style
@@ -51,6 +50,10 @@ class BookReader extends StatefulWidget {
 
   /// Title of chapter, used to displayed in header while is not first page.
   final String? title;
+
+  /// Amount of chapters, if [total] is null then the default value **[1]**
+  /// would be used.
+  final int? total;
 
   /// Determine whether show extra buttons or not. If it was null, the
   /// default value is true.
@@ -81,9 +84,9 @@ class _BookReaderState extends State<BookReader> {
   late Duration duration;
   late int index;
   EdgeInsets padding = const EdgeInsets.all(16);
+  late double progress;
   bool showOverlay = false;
   late Size size;
-  late int total;
   late bool withExtraButtons;
 
   @override
@@ -91,10 +94,9 @@ class _BookReaderState extends State<BookReader> {
     cursor = widget.cursor ?? 0;
     duration = widget.duration ?? const Duration(milliseconds: 200);
     index = widget.index ?? 0;
-    total = widget.chapters.length;
+    progress = 0;
     withExtraButtons = widget.withExtraButtons ?? true;
 
-    controller = PageController();
     super.initState();
   }
 
@@ -102,12 +104,6 @@ class _BookReaderState extends State<BookReader> {
   void didChangeDependencies() {
     calculateAvailableSize();
     super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   void calculateAvailableSize() {
@@ -146,7 +142,7 @@ class _BookReaderState extends State<BookReader> {
         duration: duration,
         index: index,
         progress: 0,
-        total: total,
+        total: widget.total ?? 1,
         withExtraButtons: withExtraButtons,
         child: WillPopScope(
           onWillPop: handleWillPop,
@@ -156,28 +152,23 @@ class _BookReaderState extends State<BookReader> {
                 var pages = snapshot.data as List<String>;
                 return Stack(
                   children: [
-                    PageView.builder(
-                      controller: controller,
-                      itemBuilder: (context, i) => BookPage(
-                        backgroundColor: widget.backgroundColor,
-                        content: pages[i],
-                        current: i + 1,
-                        header: widget.name ?? widget.title ?? '第${i + 1}章',
-                        total: pages.length,
-                        onPageDown: handlePageDown,
-                        onPageUp: handlePageUp,
-                        onOverlayOpened: handleTap,
-                      ),
-                      itemCount: pages.length,
+                    BookPage(
+                      backgroundColor: widget.backgroundColor,
+                      content: pages[0],
+                      current: index,
+                      header: widget.name ?? widget.title ?? '第${index + 1}章',
+                      total: pages.length,
+                      onPageDown: handlePageDown,
+                      onPageUp: handlePageUp,
+                      onOverlayOpened: handleTap,
                     ),
                     if (showOverlay)
                       BookPageOverlay(
-                        author: '',
-                        chapters: [],
+                        author: widget.author ?? '',
                         cover: Image.network(''),
                         duration: duration,
-                        name: '',
-                        onChapterChanged: (index) {},
+                        name: widget.name ?? '',
+                        onChapterChanged: widget.onChapterChanged,
                         onPop: handlePop,
                         onOverlayClosed: handleTap,
                       )
@@ -207,7 +198,7 @@ class _BookReaderState extends State<BookReader> {
   void handlePageDown(int current, int total) {
     if (current < total) {
       controller.nextPage(duration: duration, curve: Curves.linear);
-    } else if (current == total && index < this.total - 1) {
+    } else if (current == total && index < (widget.total ?? 1) - 1) {
       setState(() {
         index = index + 1;
       });
