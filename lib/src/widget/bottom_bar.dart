@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'query.dart';
+import 'scope.dart';
 
 class BookPageOverlayBottomBar extends StatefulWidget {
   const BookPageOverlayBottomBar({
@@ -26,7 +26,6 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
   late Animation<Offset> animation;
   late AnimationController controller;
   late int index;
-  late double progress;
 
   @override
   void initState() {
@@ -38,7 +37,6 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
     controller.forward();
 
     index = widget.index ?? 0;
-    progress = 0;
 
     super.initState();
   }
@@ -53,6 +51,8 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = BookReaderScope.of(context)!.isDarkMode;
+
     return SlideTransition(
       position: animation,
       child: Container(
@@ -60,12 +60,12 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            if (BookReaderQuery.of(context)!.withExtraButtons)
+            if (BookReaderScope.of(context)!.withExtraButtons)
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: null,
+                      onPressed: BookReaderScope.of(context)?.onListenNavigated,
                       icon: const Icon(Icons.headphones_outlined),
                       label: const Text('听书'),
                     ),
@@ -74,7 +74,7 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed:
-                          BookReaderQuery.of(context)?.onCommentNavigated,
+                          BookReaderScope.of(context)?.onCommentNavigated,
                       icon: const Icon(Icons.chat_outlined),
                       label: const Text('书评'),
                     ),
@@ -82,7 +82,7 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: BookReaderQuery.of(context)?.onSourceNavigated,
+                      onPressed: BookReaderScope.of(context)?.onSourceNavigated,
                       icon: const Icon(Icons.change_circle_outlined),
                       label: const Text('换源'),
                     ),
@@ -92,18 +92,18 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
             Row(
               children: [
                 TextButton(
-                  onPressed: () => handleChapterChanged(index - 1),
+                  onPressed: BookReaderScope.of(context)!.onChapterUp,
                   child: const Text('上一章'),
                 ),
                 Expanded(
                   child: Slider.adaptive(
-                    value: progress,
-                    onChanged: (value) {},
-                    onChangeEnd: (value) {},
+                    value: BookReaderScope.of(context)!.progress,
+                    onChanged: BookReaderScope.of(context)!.onSliderChanged,
+                    onChangeEnd: BookReaderScope.of(context)!.onSliderChangeEnd,
                   ),
                 ),
                 TextButton(
-                  onPressed: () => handleChapterChanged(index + 1),
+                  onPressed: BookReaderScope.of(context)!.onChapterDown,
                   child: const Text('下一章'),
                 ),
               ],
@@ -112,7 +112,7 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  onPressed: BookReaderQuery.of(context)?.onCatalogueNavigated,
+                  onPressed: BookReaderScope.of(context)?.onCatalogueNavigated,
                   child: Column(
                     children: const [
                       Icon(Icons.list_outlined),
@@ -121,7 +121,7 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: BookReaderScope.of(context)?.onCacheNavigated,
                   child: Column(
                     children: const [
                       Icon(Icons.download_for_offline_outlined),
@@ -130,16 +130,21 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: BookReaderScope.of(context)?.onDarkModeChanged,
                   child: Column(
-                    children: const [
-                      Icon(Icons.dark_mode_outlined),
-                      Text('夜间', style: TextStyle(fontSize: 12)),
+                    children: [
+                      Icon(isDarkMode
+                          ? Icons.light_mode_outlined
+                          : Icons.dark_mode_outlined),
+                      Text(
+                        isDarkMode ? '白天' : '夜间',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ],
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: BookReaderScope.of(context)?.onSettingNavigated,
                   child: Column(
                     children: const [
                       Icon(Icons.settings_outlined),
@@ -153,20 +158,5 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
         ),
       ),
     );
-  }
-
-  void handleChapterChanged(int index) {
-    var total = BookReaderQuery.of(context)?.total;
-    if (index < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('已经是第一章'),
-      ));
-    } else if (index >= total!) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('已经是最后一章'),
-      ));
-    } else {
-      widget.onChapterChanged?.call(index);
-    }
   }
 }

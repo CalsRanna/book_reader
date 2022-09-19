@@ -9,9 +9,9 @@ void main() {
     final reader = BookReader(
       author: 'authro',
       cover: Image.network('cover'),
+      future: (index) => Future.value('$index'),
       name: 'name',
       total: 100,
-      onChapterChanged: (index) => Future.value(index.toString()),
     );
 
     expect(reader.runtimeType, BookReader);

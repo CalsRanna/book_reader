@@ -1,4 +1,4 @@
-import 'package:book_reader/src/widget/query.dart';
+import 'package:book_reader/src/widget/scope.dart';
 import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
@@ -14,7 +14,6 @@ class BookPageOverlay extends StatefulWidget {
     required this.name,
     this.onBookPressed,
     this.onCatalogueNavigated,
-    required this.onChapterChanged,
     this.onOverlayClosed,
     this.onPop,
   });
@@ -26,7 +25,6 @@ class BookPageOverlay extends StatefulWidget {
   final String name;
   final void Function()? onBookPressed;
   final void Function()? onCatalogueNavigated;
-  final void Function(int index) onChapterChanged;
   final void Function()? onOverlayClosed;
   final void Function()? onPop;
 
@@ -42,8 +40,15 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   @override
   void initState() {
     index = widget.index ?? 0;
-    progress = index / BookReaderQuery.of(context)!.total;
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    setState(() {
+      progress = index / BookReaderScope.of(context)!.total;
+    });
+    super.didChangeDependencies();
   }
 
   @override
@@ -95,17 +100,23 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   void handleChapterChanged(int index) {
     if (index < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('已经是第一章')),
+        SnackBar(
+          content: const Text('已经是第一章'),
+          duration: BookReaderScope.of(context)!.duration,
+        ),
       );
-    } else if (index > BookReaderQuery.of(context)!.total) {
+    } else if (index > BookReaderScope.of(context)!.total) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('已经是最后一章')),
+        SnackBar(
+          content: const Text('已经是最后一章'),
+          duration: BookReaderScope.of(context)!.duration,
+        ),
       );
     } else {
       setState(() {
         this.index = index;
       });
-      widget.onChapterChanged(index);
+      BookReaderScope.of(context)!.onChapterDown?.call();
     }
   }
 
@@ -116,14 +127,14 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   }
 
   void handleProgressChangedEnd(double value) {
-    var index = (value * BookReaderQuery.of(context)!.total).toInt();
-    if (index >= BookReaderQuery.of(context)!.total) {
-      index = BookReaderQuery.of(context)!.total - 1;
+    var index = (value * BookReaderScope.of(context)!.total).toInt();
+    if (index >= BookReaderScope.of(context)!.total) {
+      index = BookReaderScope.of(context)!.total - 1;
     }
     setState(() {
       this.index = index;
     });
-    widget.onChapterChanged(index);
+    BookReaderScope.of(context)!.onChapterDown?.call();
   }
 
   void handleNavigateCatalogue() {

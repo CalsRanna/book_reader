@@ -2,25 +2,27 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'scope.dart';
+
 class BookPageFooter extends StatelessWidget {
   const BookPageFooter({
     super.key,
-    this.current = 1,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    this.progress = 0,
-    this.style = const TextStyle(color: Colors.black, fontSize: 10, height: 1),
-    this.total = 0,
   });
 
-  final int current;
   final EdgeInsets padding;
-  final double progress;
-  final TextStyle style;
-  final int total;
 
   @override
   Widget build(BuildContext context) {
+    final current = BookReaderScope.of(context)!.cursor + 1;
+    final total = BookReaderScope.of(context)!.pages.length;
+    final progress = BookReaderScope.of(context)!.progress * 100;
     final now = DateTime.now();
+    final style = TextStyle(
+      color: BookReaderScope.of(context)!.textColor,
+      fontSize: 10,
+      height: 1,
+    );
     return Container(
       padding: padding,
       child: DefaultTextStyle.merge(

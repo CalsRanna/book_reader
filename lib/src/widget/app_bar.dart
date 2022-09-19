@@ -1,4 +1,4 @@
-import 'package:book_reader/src/widget/query.dart';
+import 'package:book_reader/src/widget/scope.dart';
 import 'package:flutter/material.dart';
 
 class BookPageOverlayAppBar extends StatefulWidget {
@@ -58,7 +58,7 @@ class _BookPageOverlayAppBarState extends State<BookPageOverlayAppBar>
                   ),
                   const Expanded(child: SizedBox()),
                   TextButton(
-                    onPressed: BookReaderQuery.of(context)?.onRefresh,
+                    onPressed: BookReaderScope.of(context)?.onRefresh,
                     child: Row(
                       children: const [
                         Icon(Icons.refresh_outlined),

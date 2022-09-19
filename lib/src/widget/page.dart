@@ -1,49 +1,47 @@
 import 'package:book_reader/src/widget/footer.dart';
 import 'package:book_reader/src/widget/header.dart';
+import 'package:book_reader/src/widget/scope.dart';
 import 'package:flutter/material.dart';
 
 class BookPage extends StatelessWidget {
   const BookPage({
     super.key,
-    this.backgroundColor,
     required this.content,
-    required this.header,
-    required this.current,
-    required this.total,
     this.onOverlayOpened,
     this.onPageDown,
     this.onPageUp,
   });
 
-  final Color? backgroundColor;
   final String content;
-  final int current;
-  final String header;
-  final int total;
   final void Function()? onOverlayOpened;
-  final void Function(int page, int total)? onPageDown;
-  final void Function(int page)? onPageUp;
+  final void Function()? onPageDown;
+  final void Function()? onPageUp;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          Container(color: backgroundColor ?? Colors.white),
+          Container(color: BookReaderScope.of(context)!.backgroundColor),
           GestureDetector(
             onTapUp: (details) => handleTap(context, details),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: MediaQuery.of(context).padding.top),
-                BookPageHeader(text: header),
+                const BookPageHeader(),
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16),
-                    child: Text(content),
+                    child: Text(
+                      content,
+                      style: TextStyle(
+                        color: BookReaderScope.of(context)!.textColor,
+                      ),
+                    ),
                   ),
                 ),
-                BookPageFooter(current: current, total: total),
+                const BookPageFooter(),
                 SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],
             ),
@@ -57,9 +55,9 @@ class BookPage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final position = details.globalPosition;
     if (position.dx < width ~/ 3) {
-      onPageUp?.call(current);
+      onPageUp?.call();
     } else if (position.dx > width ~/ 3 * 2) {
-      onPageDown?.call(current, total);
+      onPageDown?.call();
     } else {
       onOverlayOpened?.call();
     }
