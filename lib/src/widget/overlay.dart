@@ -1,3 +1,4 @@
+import 'package:book_reader/src/tool/message.dart';
 import 'package:book_reader/src/widget/scope.dart';
 import 'package:flutter/material.dart';
 
@@ -99,19 +100,9 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
 
   void handleChapterChanged(int index) {
     if (index < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('已经是第一章'),
-          duration: BookReaderScope.of(context)!.duration,
-        ),
-      );
+      Message.show(context, message: '已经是第一章');
     } else if (index > BookReaderScope.of(context)!.total) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('已经是最后一章'),
-          duration: BookReaderScope.of(context)!.duration,
-        ),
-      );
+      Message.show(context, message: '已经是最后一章');
     } else {
       setState(() {
         this.index = index;

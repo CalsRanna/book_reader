@@ -2,6 +2,7 @@ import 'package:book_reader/src/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../tool/message.dart';
 import '../tool/paginator.dart';
 import 'overlay.dart';
 import 'page.dart';
@@ -281,10 +282,7 @@ class _BookReaderState extends State<BookReader> {
       fetchContent();
       calculateProgress();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('已经是最后一页'),
-        duration: duration,
-      ));
+      Message.show(context, message: '已经是最后一页');
     }
   }
 
@@ -303,10 +301,7 @@ class _BookReaderState extends State<BookReader> {
         cursor = length - 1;
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('已经是第一页'),
-        duration: duration,
-      ));
+      Message.show(context, message: '已经是第一页');
     }
   }
 
@@ -319,10 +314,7 @@ class _BookReaderState extends State<BookReader> {
       fetchContent();
       calculateProgress();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('已经是最后一章'),
-        duration: duration,
-      ));
+      Message.show(context, message: '已经是最后一章');
     }
   }
 
@@ -335,10 +327,7 @@ class _BookReaderState extends State<BookReader> {
       fetchContent();
       calculateProgress();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('已经是第一章'),
-        duration: duration,
-      ));
+      Message.show(context, message: '已经是第一章');
     }
   }
 
