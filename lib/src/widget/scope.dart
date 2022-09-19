@@ -12,9 +12,9 @@ class BookReaderScope extends InheritedWidget {
     required this.name,
     required this.pages,
     required this.progress,
+    required this.textColor,
     this.title,
     required this.total,
-    required this.textColor,
     required this.withExtraButtons,
     required super.child,
     this.onCacheNavigated,
@@ -41,9 +41,9 @@ class BookReaderScope extends InheritedWidget {
   final String name;
   final List<String> pages;
   final double progress;
+  final Color textColor;
   final String? title;
   final int total;
-  final Color textColor;
   final bool withExtraButtons;
   final void Function()? onCacheNavigated;
   final void Function()? onCatalogueNavigated;
@@ -68,8 +68,10 @@ class BookReaderScope extends InheritedWidget {
         name != oldWidget.name ||
         pages != oldWidget.pages ||
         progress != oldWidget.progress ||
+        textColor != oldWidget.textColor ||
         title != oldWidget.title ||
-        total != oldWidget.total;
+        total != oldWidget.total ||
+        withExtraButtons != oldWidget.withExtraButtons;
   }
 
   static BookReaderScope? of(BuildContext context) {
