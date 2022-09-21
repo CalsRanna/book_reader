@@ -94,8 +94,6 @@ class BookReader extends StatefulWidget {
 
 class _BookReaderState extends State<BookReader> {
   late Color backgroundColor;
-  late String content;
-  late PageController controller;
   late int cursor;
   late Duration duration;
   late int index;
@@ -282,7 +280,7 @@ class _BookReaderState extends State<BookReader> {
       fetchContent();
       calculateProgress();
     } else {
-      Message.show(context, message: '已经是最后一页');
+      Message.show(context, duration: duration, message: '已经是最后一页');
     }
   }
 
@@ -301,7 +299,7 @@ class _BookReaderState extends State<BookReader> {
         cursor = length - 1;
       });
     } else {
-      Message.show(context, message: '已经是第一页');
+      Message.show(context, duration: duration, message: '已经是第一页');
     }
   }
 
@@ -314,7 +312,7 @@ class _BookReaderState extends State<BookReader> {
       fetchContent();
       calculateProgress();
     } else {
-      Message.show(context, message: '已经是最后一章');
+      Message.show(context, duration: duration, message: '已经是最后一章');
     }
   }
 
@@ -327,7 +325,7 @@ class _BookReaderState extends State<BookReader> {
       fetchContent();
       calculateProgress();
     } else {
-      Message.show(context, message: '已经是第一章');
+      Message.show(context, duration: duration, message: '已经是第一章');
     }
   }
 
