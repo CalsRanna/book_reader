@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 class BookPageHeader extends StatelessWidget {
   const BookPageHeader({
     super.key,
+    required this.name,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.title,
   });
 
+  final String name;
   final EdgeInsets padding;
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +26,7 @@ class BookPageHeader extends StatelessWidget {
       text = BookReaderScope.of(context)!.title!;
     }
     return Container(
+      color: Colors.transparent,
       padding: padding,
       child: Text(
         text,

@@ -8,14 +8,15 @@ class BookPageFooter extends StatelessWidget {
   const BookPageFooter({
     super.key,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    required this.total,
   });
 
   final EdgeInsets padding;
+  final int total;
 
   @override
   Widget build(BuildContext context) {
     final current = BookReaderScope.of(context)!.cursor + 1;
-    final total = BookReaderScope.of(context)!.pages.length;
     final progress = BookReaderScope.of(context)!.progress * 100;
     final now = DateTime.now();
     final style = TextStyle(
@@ -24,6 +25,7 @@ class BookPageFooter extends StatelessWidget {
       height: 1,
     );
     return Container(
+      color: Colors.transparent,
       padding: padding,
       child: DefaultTextStyle.merge(
         maxLines: 1,

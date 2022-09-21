@@ -78,9 +78,8 @@ class BookReader extends StatefulWidget {
   /// custom catalogue page.
   final void Function()? onCatalogueNavigated;
 
-  /// When chapter changed or first inited, use this function to fetch
-  /// data and do some thing you need. The param should be the current
-  /// [index] of chapters.
+  /// This function will be called when change chapter. And use [future] to
+  /// fetch data instead of here.
   final void Function(int index)? onChapterChanged;
 
   /// When exit the reader page, use this to do something you ever want to.
@@ -96,10 +95,12 @@ class _BookReaderState extends State<BookReader> {
   late Color backgroundColor;
   late int cursor;
   late Duration duration;
+  bool hasError = false;
   late int index;
   bool isDarkMode = false;
   bool isLoading = true;
   EdgeInsets padding = const EdgeInsets.all(16);
+  late List<String> pages;
   late double progress;
   bool showOverlay = false;
   late Size size;
@@ -123,6 +124,7 @@ class _BookReaderState extends State<BookReader> {
 
   @override
   void didChangeDependencies() {
+    hideSystemUiOverlay();
     calculateAvailableSize();
     fetchContent();
     calculateProgress();
@@ -146,9 +148,15 @@ class _BookReaderState extends State<BookReader> {
     });
   }
 
-  Future fetchContent() async {
+  void fetchContent() async {
+    setState(() {
+      isLoading = true;
+    });
     var content = await widget.future(index);
-    return Paginator(size: size).paginate(content);
+    setState(() {
+      pages = Paginator(size: size).paginate(content);
+      isLoading = false;
+    });
   }
 
   void calculateProgress() {
@@ -159,104 +167,78 @@ class _BookReaderState extends State<BookReader> {
 
   @override
   Widget build(BuildContext context) {
+    return BookReaderScope(
+      backgroundColor: backgroundColor,
+      cursor: cursor,
+      duration: duration,
+      index: index,
+      isDarkMode: isDarkMode,
+      isLoading: isLoading,
+      name: widget.name,
+      progress: progress,
+      textColor: textColor,
+      title: widget.title,
+      total: total,
+      withExtraButtons: withExtraButtons,
+      onCatalogueNavigated: widget.onCatalogueNavigated,
+      onChapterDown: handleChapterDown,
+      onChapterUp: handleChapterUp,
+      onDarkModeChanged: handleDarkModeChanged,
+      onSliderChanged: handleSliderChanged,
+      onSliderChangeEnd: handleSliderChangeEnd,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            Container(color: widget.backgroundColor),
+            Builder(builder: (context) {
+              if (isLoading) {
+                return BookLoading(name: widget.name);
+              } else {
+                if (hasError) {
+                  return const Text('Error');
+                } else {
+                  return WillPopScope(
+                    onWillPop: handleWillPop,
+                    child: Stack(
+                      children: [
+                        BookPage(
+                          content: pages.isNotEmpty ? pages[cursor] : '暂无内容',
+                          name: widget.name,
+                          total: pages.length,
+                          onPageDown: () => handlePageDown(pages.length),
+                          onPageUp: () => handlePageUp(pages.length),
+                          onOverlayOpened: handleTap,
+                        ),
+                        if (showOverlay)
+                          BookPageOverlay(
+                            author: widget.author ?? '',
+                            cover: Image.network(''),
+                            duration: duration,
+                            name: widget.name,
+                            onPop: handlePop,
+                            onOverlayClosed: handleTap,
+                          )
+                      ],
+                    ),
+                  );
+                }
+              }
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void hideSystemUiOverlay() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  }
+
+  void showSystemUiOverlay() {
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
-      overlays: showOverlay ? [SystemUiOverlay.top] : [],
-    );
-
-    return Scaffold(
-      body: FutureBuilder(
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            var pages = snapshot.data as List<String>;
-            return BookReaderScope(
-              backgroundColor: backgroundColor,
-              cursor: cursor,
-              duration: duration,
-              index: index,
-              isDarkMode: isDarkMode,
-              isLoading: isLoading,
-              name: widget.name,
-              pages: pages,
-              progress: progress,
-              textColor: textColor,
-              title: widget.title,
-              total: total,
-              withExtraButtons: withExtraButtons,
-              onCatalogueNavigated: widget.onCatalogueNavigated,
-              onChapterDown: handleChapterDown,
-              onChapterUp: handleChapterUp,
-              onDarkModeChanged: handleDarkModeChanged,
-              onSliderChanged: handleSliderChanged,
-              onSliderChangeEnd: handleSliderChangeEnd,
-              child: WillPopScope(
-                onWillPop: handleWillPop,
-                child: Stack(
-                  children: [
-                    BookPage(
-                      content: pages.isNotEmpty ? pages[cursor] : '暂无内容',
-                      onPageDown: () => handlePageDown(pages.length),
-                      onPageUp: () => handlePageUp(pages.length),
-                      onOverlayOpened: handleTap,
-                    ),
-                    if (showOverlay)
-                      BookPageOverlay(
-                        author: widget.author ?? '',
-                        cover: Image.network(''),
-                        duration: duration,
-                        name: widget.name,
-                        onPop: handlePop,
-                        onOverlayClosed: handleTap,
-                      )
-                  ],
-                ),
-              ),
-            );
-          } else {
-            var pages = <String>[];
-
-            return BookReaderScope(
-              backgroundColor: backgroundColor,
-              cursor: cursor,
-              duration: duration,
-              index: index,
-              isDarkMode: isDarkMode,
-              isLoading: isLoading,
-              name: widget.name,
-              pages: pages,
-              progress: progress,
-              textColor: textColor,
-              title: widget.title,
-              total: total,
-              withExtraButtons: withExtraButtons,
-              onCatalogueNavigated: widget.onCatalogueNavigated,
-              onChapterDown: handleChapterDown,
-              onChapterUp: handleChapterUp,
-              onDarkModeChanged: handleDarkModeChanged,
-              onSliderChanged: handleSliderChanged,
-              onSliderChangeEnd: handleSliderChangeEnd,
-              child: WillPopScope(
-                onWillPop: handleWillPop,
-                child: Stack(
-                  children: [
-                    const BookLoading(),
-                    if (showOverlay)
-                      BookPageOverlay(
-                        author: widget.author ?? '',
-                        cover: Image.network(''),
-                        duration: duration,
-                        name: widget.name,
-                        onPop: handlePop,
-                        onOverlayClosed: handleTap,
-                      )
-                  ],
-                ),
-              ),
-            );
-          }
-        },
-        future: fetchContent(),
-      ),
+      overlays: SystemUiOverlay.values,
     );
   }
 
@@ -338,9 +320,7 @@ class _BookReaderState extends State<BookReader> {
   }
 
   void handleTap() {
-    setState(() {
-      showOverlay = !showOverlay;
-    });
+    showSystemUiOverlay();
   }
 
   void handleSliderChanged(double value) {

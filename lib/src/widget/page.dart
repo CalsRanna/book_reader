@@ -7,12 +7,16 @@ class BookPage extends StatelessWidget {
   const BookPage({
     super.key,
     required this.content,
+    required this.name,
+    required this.total,
     this.onOverlayOpened,
     this.onPageDown,
     this.onPageUp,
   });
 
   final String content;
+  final String name;
+  final int total;
   final void Function()? onOverlayOpened;
   final void Function()? onPageDown;
   final void Function()? onPageUp;
@@ -20,33 +24,28 @@ class BookPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(color: BookReaderScope.of(context)!.backgroundColor),
-          GestureDetector(
-            onTapUp: (details) => handleTap(context, details),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: MediaQuery.of(context).padding.top),
-                const BookPageHeader(),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      content,
-                      style: TextStyle(
-                        color: BookReaderScope.of(context)!.textColor,
-                      ),
-                    ),
+      body: GestureDetector(
+        onTapUp: (details) => handleTap(context, details),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: MediaQuery.of(context).padding.top),
+            BookPageHeader(name: name),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  content,
+                  style: TextStyle(
+                    color: BookReaderScope.of(context)!.textColor,
                   ),
                 ),
-                const BookPageFooter(),
-                SizedBox(height: MediaQuery.of(context).padding.bottom),
-              ],
+              ),
             ),
-          )
-        ],
+            BookPageFooter(total: total),
+            SizedBox(height: MediaQuery.of(context).padding.bottom),
+          ],
+        ),
       ),
     );
   }

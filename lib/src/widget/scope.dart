@@ -10,7 +10,6 @@ class BookReaderScope extends InheritedWidget {
     required this.isDarkMode,
     required this.isLoading,
     required this.name,
-    required this.pages,
     required this.progress,
     required this.textColor,
     this.title,
@@ -39,7 +38,6 @@ class BookReaderScope extends InheritedWidget {
   final bool isDarkMode;
   final bool isLoading;
   final String name;
-  final List<String> pages;
   final double progress;
   final Color textColor;
   final String? title;
@@ -66,7 +64,6 @@ class BookReaderScope extends InheritedWidget {
         duration != oldWidget.duration ||
         index != oldWidget.index ||
         name != oldWidget.name ||
-        pages != oldWidget.pages ||
         progress != oldWidget.progress ||
         textColor != oldWidget.textColor ||
         title != oldWidget.title ||
