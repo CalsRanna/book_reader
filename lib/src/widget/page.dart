@@ -23,27 +23,22 @@ class BookPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final padding = BookReaderScope.of(context)!.pagePadding;
+    final style = BookReaderScope.of(context)!.pageStyle;
     return Scaffold(
       body: GestureDetector(
         onTapUp: (details) => handleTap(context, details),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: MediaQuery.of(context).padding.top),
-            BookPageHeader(name: name),
+            const BookPageHeader(),
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  content,
-                  style: TextStyle(
-                    color: BookReaderScope.of(context)!.textColor,
-                  ),
-                ),
+                margin: padding,
+                child: Text(content, style: style),
               ),
             ),
             BookPageFooter(total: total),
-            SizedBox(height: MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),
@@ -58,7 +53,7 @@ class BookPage extends StatelessWidget {
     } else if (position.dx > width ~/ 3 * 2) {
       onPageDown?.call();
     } else {
-      onOverlayOpened?.call();
+      BookReaderScope.of(context)!.onOverlayInserted?.call();
     }
   }
 }

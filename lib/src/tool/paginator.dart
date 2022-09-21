@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class Paginator {
-  const Paginator({required this.size});
+  const Paginator({required this.size, required this.style});
 
   final Size size;
+  final TextStyle style;
 
   List<String> paginate(String content) {
     var offset = 0;
@@ -11,17 +12,17 @@ class Paginator {
     while (offset < content.length - 1) {
       var start = offset;
       var end = content.length;
-      var middle = ((start + end) / 2).ceil();
+      var middle = ((start + end) ~/ 2);
       for (var i = 0; i < 20; i++) {
         if (_layout(content.substring(offset, middle))) {
           if (middle <= start || middle >= end) {
             break;
           }
           start = middle;
-          middle = ((start + end) / 2).ceil();
+          middle = ((start + end) ~/ 2);
         } else {
           end = middle;
-          middle = ((start + end) / 2).ceil();
+          middle = ((start + end) ~/ 2);
         }
       }
       pages.add(content.substring(offset, middle));
@@ -30,9 +31,12 @@ class Paginator {
     return pages;
   }
 
+  /// Whether the text can be paint properly in the available area. If
+  /// the return value is [true], means still in the available size,
+  /// and [false] means not.
   bool _layout(String text) {
     final painter = TextPainter(
-      text: TextSpan(text: text),
+      text: TextSpan(text: text, style: style),
       textDirection: TextDirection.ltr,
     );
     painter.layout(maxWidth: size.width);

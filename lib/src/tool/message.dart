@@ -8,8 +8,11 @@ class Message {
   }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        behavior: SnackBarBehavior.floating,
         content: Text(message),
         duration: duration ?? const Duration(milliseconds: 200),
+        shape: const StadiumBorder(),
       ),
     );
   }

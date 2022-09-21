@@ -94,7 +94,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
         visible = false;
       });
     } else {
-      widget.onOverlayClosed?.call();
+      BookReaderScope.of(context)!.onOverlayRemoved?.call();
     }
   }
 
@@ -129,6 +129,6 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   }
 
   void handleNavigateCatalogue() {
-    widget.onCatalogueNavigated?.call();
+    BookReaderScope.of(context)!.onCatalogueNavigated?.call();
   }
 }

@@ -6,6 +6,10 @@ class BookReaderScope extends InheritedWidget {
     required this.backgroundColor,
     required this.cursor,
     required this.duration,
+    required this.footerPadding,
+    required this.headerPadding,
+    required this.pagePadding,
+    required this.pageStyle,
     required this.index,
     required this.isDarkMode,
     required this.isLoading,
@@ -23,6 +27,8 @@ class BookReaderScope extends InheritedWidget {
     this.onCommentNavigated,
     this.onListenNavigated,
     this.onDarkModeChanged,
+    this.onOverlayInserted,
+    this.onOverlayRemoved,
     this.onPop,
     this.onRefresh,
     this.onSettingNavigated,
@@ -34,6 +40,10 @@ class BookReaderScope extends InheritedWidget {
   final Color backgroundColor;
   final int cursor;
   final Duration duration;
+  final EdgeInsets footerPadding;
+  final EdgeInsets headerPadding;
+  final EdgeInsets pagePadding;
+  final TextStyle pageStyle;
   final int index;
   final bool isDarkMode;
   final bool isLoading;
@@ -50,6 +60,8 @@ class BookReaderScope extends InheritedWidget {
   final void Function()? onCommentNavigated;
   final void Function()? onListenNavigated;
   final void Function()? onDarkModeChanged;
+  final void Function()? onOverlayInserted;
+  final void Function()? onOverlayRemoved;
   final void Function()? onPop;
   final void Function()? onRefresh;
   final void Function()? onSettingNavigated;
@@ -62,6 +74,9 @@ class BookReaderScope extends InheritedWidget {
     return backgroundColor != oldWidget.backgroundColor ||
         cursor != oldWidget.cursor ||
         duration != oldWidget.duration ||
+        footerPadding != oldWidget.footerPadding ||
+        headerPadding != oldWidget.headerPadding ||
+        pagePadding != oldWidget.pagePadding ||
         index != oldWidget.index ||
         name != oldWidget.name ||
         progress != oldWidget.progress ||

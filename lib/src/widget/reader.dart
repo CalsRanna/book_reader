@@ -96,11 +96,14 @@ class _BookReaderState extends State<BookReader> {
   late int cursor;
   late Duration duration;
   bool hasError = false;
+  late EdgeInsets footerPadding;
+  late EdgeInsets headerPadding;
   late int index;
   bool isDarkMode = false;
   bool isLoading = true;
-  EdgeInsets padding = const EdgeInsets.all(16);
+  late EdgeInsets pagePadding;
   late List<String> pages;
+  late TextStyle pageStyle;
   late double progress;
   bool showOverlay = false;
   late Size size;
@@ -113,11 +116,26 @@ class _BookReaderState extends State<BookReader> {
     backgroundColor = widget.backgroundColor ?? Colors.white;
     cursor = widget.cursor ?? 0;
     duration = widget.duration ?? const Duration(milliseconds: 200);
+    footerPadding = const EdgeInsets.only(
+      bottom: 24,
+      left: 16,
+      right: 16,
+      top: 8,
+    );
+    headerPadding = const EdgeInsets.only(
+      bottom: 8,
+      left: 16,
+      right: 16,
+      top: 67,
+    );
     index = widget.index ?? 0;
+    pagePadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
     progress = 0;
     total = widget.total ?? 1;
     textColor = Colors.black;
     withExtraButtons = widget.withExtraButtons ?? true;
+
+    pageStyle = TextStyle(color: textColor, fontSize: 18);
 
     super.initState();
   }
@@ -133,16 +151,13 @@ class _BookReaderState extends State<BookReader> {
 
   void calculateAvailableSize() {
     final globalSize = MediaQuery.of(context).size;
-    final globalPadding = MediaQuery.of(context).padding;
-    const headerHeight = 26;
-    const footerHeight = 26;
-    final width = globalSize.width - padding.horizontal;
+    final width = globalSize.width - pagePadding.horizontal;
     final height = globalSize.height -
-        // globalPadding.vertical -
-        (globalPadding.top + 8) -
-        padding.vertical -
-        headerHeight -
-        footerHeight;
+        headerPadding.vertical -
+        10 -
+        pagePadding.vertical -
+        footerPadding.vertical -
+        10;
     setState(() {
       size = Size(width, height);
     });
@@ -154,7 +169,7 @@ class _BookReaderState extends State<BookReader> {
     });
     var content = await widget.future(index);
     setState(() {
-      pages = Paginator(size: size).paginate(content);
+      pages = Paginator(size: size, style: pageStyle).paginate(content);
       isLoading = false;
     });
   }
@@ -171,10 +186,14 @@ class _BookReaderState extends State<BookReader> {
       backgroundColor: backgroundColor,
       cursor: cursor,
       duration: duration,
+      footerPadding: footerPadding,
+      headerPadding: headerPadding,
       index: index,
       isDarkMode: isDarkMode,
       isLoading: isLoading,
       name: widget.name,
+      pagePadding: pagePadding,
+      pageStyle: pageStyle,
       progress: progress,
       textColor: textColor,
       title: widget.title,
@@ -184,6 +203,8 @@ class _BookReaderState extends State<BookReader> {
       onChapterDown: handleChapterDown,
       onChapterUp: handleChapterUp,
       onDarkModeChanged: handleDarkModeChanged,
+      onOverlayInserted: handleOverlayInserted,
+      onOverlayRemoved: handleOverlayRemoved,
       onSliderChanged: handleSliderChanged,
       onSliderChangeEnd: handleSliderChangeEnd,
       child: Scaffold(
@@ -208,7 +229,6 @@ class _BookReaderState extends State<BookReader> {
                           total: pages.length,
                           onPageDown: () => handlePageDown(pages.length),
                           onPageUp: () => handlePageUp(pages.length),
-                          onOverlayOpened: handleTap,
                         ),
                         if (showOverlay)
                           BookPageOverlay(
@@ -217,7 +237,6 @@ class _BookReaderState extends State<BookReader> {
                             duration: duration,
                             name: widget.name,
                             onPop: handlePop,
-                            onOverlayClosed: handleTap,
                           )
                       ],
                     ),
@@ -319,8 +338,18 @@ class _BookReaderState extends State<BookReader> {
     });
   }
 
-  void handleTap() {
+  void handleOverlayInserted() {
     showSystemUiOverlay();
+    setState(() {
+      showOverlay = true;
+    });
+  }
+
+  void handleOverlayRemoved() {
+    hideSystemUiOverlay();
+    setState(() {
+      showOverlay = false;
+    });
   }
 
   void handleSliderChanged(double value) {
