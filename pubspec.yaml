@@ -1,10 +1,11 @@
 name: book_reader
-description: A new Flutter package project.
+description: A widget used to read a book.
 version: 0.0.1
-homepage:
+homepage: https://github.com/CalsRanna/book_reader
+repository: https://github.com/CalsRanna/book_reader
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: ">=2.18.0 <3.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
