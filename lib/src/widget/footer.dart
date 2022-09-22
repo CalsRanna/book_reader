@@ -5,25 +5,24 @@ import 'package:flutter/material.dart';
 import 'scope.dart';
 
 class BookPageFooter extends StatelessWidget {
-  const BookPageFooter({super.key, this.total});
-
-  final int? total;
+  const BookPageFooter({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final padding = BookReaderScope.of(context)!.footerPadding;
     final current = BookReaderScope.of(context)!.cursor + 1;
-    final progress = BookReaderScope.of(context)!.progress * 100;
     final now = DateTime.now();
+    final padding = BookReaderScope.of(context)!.footerPadding;
+    final pages = BookReaderScope.of(context)!.pages;
+    final progress = BookReaderScope.of(context)!.progress * 100;
     final style = TextStyle(
       color: BookReaderScope.of(context)!.textColor,
       fontSize: 10,
       height: 1,
     );
     List<Widget> left = [const Text('获取中')];
-    if (total == null) {
+    if (pages.isNotEmpty) {
       left = [
-        Text('$current/$total'),
+        Text('$current/${pages.length}'),
         const SizedBox(width: 8),
         Text('$progress%'),
       ];

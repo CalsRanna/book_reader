@@ -8,12 +8,13 @@ class BookReaderScope extends InheritedWidget {
     required this.duration,
     required this.footerPadding,
     required this.headerPadding,
-    required this.pagePadding,
-    required this.pageStyle,
     required this.index,
     required this.isDarkMode,
     required this.isLoading,
     required this.name,
+    required this.pagePadding,
+    required this.pages,
+    required this.pageStyle,
     required this.progress,
     required this.textColor,
     this.title,
@@ -29,6 +30,8 @@ class BookReaderScope extends InheritedWidget {
     this.onDarkModeChanged,
     this.onOverlayInserted,
     this.onOverlayRemoved,
+    this.onPageDown,
+    this.onPageUp,
     this.onPop,
     this.onRefresh,
     this.onSettingNavigated,
@@ -42,12 +45,13 @@ class BookReaderScope extends InheritedWidget {
   final Duration duration;
   final EdgeInsets footerPadding;
   final EdgeInsets headerPadding;
-  final EdgeInsets pagePadding;
-  final TextStyle pageStyle;
   final int index;
   final bool isDarkMode;
   final bool isLoading;
   final String name;
+  final EdgeInsets pagePadding;
+  final List<String> pages;
+  final TextStyle pageStyle;
   final double progress;
   final Color textColor;
   final String? title;
@@ -62,6 +66,8 @@ class BookReaderScope extends InheritedWidget {
   final void Function()? onDarkModeChanged;
   final void Function()? onOverlayInserted;
   final void Function()? onOverlayRemoved;
+  final void Function()? onPageDown;
+  final void Function()? onPageUp;
   final void Function()? onPop;
   final void Function()? onRefresh;
   final void Function()? onSettingNavigated;

@@ -1,9 +1,9 @@
-import 'package:book_reader/src/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../tool/message.dart';
 import '../tool/paginator.dart';
+import 'loading.dart';
 import 'overlay.dart';
 import 'page.dart';
 import 'scope.dart';
@@ -130,6 +130,7 @@ class _BookReaderState extends State<BookReader> {
     );
     index = widget.index ?? 0;
     pagePadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+    pages = [];
     progress = 0;
     total = widget.total ?? 1;
     textColor = Colors.black;
@@ -151,13 +152,13 @@ class _BookReaderState extends State<BookReader> {
 
   void calculateAvailableSize() {
     final globalSize = MediaQuery.of(context).size;
-    final width = globalSize.width - pagePadding.horizontal;
     final height = globalSize.height -
         headerPadding.vertical -
         10 -
         pagePadding.vertical -
         footerPadding.vertical -
         10;
+    final width = globalSize.width - pagePadding.horizontal;
     setState(() {
       size = Size(width, height);
     });
@@ -182,39 +183,43 @@ class _BookReaderState extends State<BookReader> {
 
   @override
   Widget build(BuildContext context) {
-    return BookReaderScope(
-      backgroundColor: backgroundColor,
-      cursor: cursor,
-      duration: duration,
-      footerPadding: footerPadding,
-      headerPadding: headerPadding,
-      index: index,
-      isDarkMode: isDarkMode,
-      isLoading: isLoading,
-      name: widget.name,
-      pagePadding: pagePadding,
-      pageStyle: pageStyle,
-      progress: progress,
-      textColor: textColor,
-      title: widget.title,
-      total: total,
-      withExtraButtons: withExtraButtons,
-      onCatalogueNavigated: widget.onCatalogueNavigated,
-      onChapterDown: handleChapterDown,
-      onChapterUp: handleChapterUp,
-      onDarkModeChanged: handleDarkModeChanged,
-      onOverlayInserted: handleOverlayInserted,
-      onOverlayRemoved: handleOverlayRemoved,
-      onSliderChanged: handleSliderChanged,
-      onSliderChangeEnd: handleSliderChangeEnd,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: BookReaderScope(
+        backgroundColor: backgroundColor,
+        cursor: cursor,
+        duration: duration,
+        footerPadding: footerPadding,
+        headerPadding: headerPadding,
+        index: index,
+        isDarkMode: isDarkMode,
+        isLoading: isLoading,
+        name: widget.name,
+        pagePadding: pagePadding,
+        pages: pages,
+        pageStyle: pageStyle,
+        progress: progress,
+        textColor: textColor,
+        title: widget.title,
+        total: total,
+        withExtraButtons: withExtraButtons,
+        onCatalogueNavigated: widget.onCatalogueNavigated,
+        onChapterDown: handleChapterDown,
+        onChapterUp: handleChapterUp,
+        onDarkModeChanged: handleDarkModeChanged,
+        onOverlayInserted: handleOverlayInserted,
+        onOverlayRemoved: handleOverlayRemoved,
+        onPageDown: handlePageDown,
+        onPageUp: handlePageUp,
+        onPop: handlePop,
+        onSliderChanged: handleSliderChanged,
+        onSliderChangeEnd: handleSliderChangeEnd,
+        child: Stack(
           children: [
             Container(color: widget.backgroundColor),
             Builder(builder: (context) {
               if (isLoading) {
-                return BookLoading(name: widget.name);
+                return const BookLoading();
               } else {
                 if (hasError) {
                   return const Text('Error');
@@ -223,21 +228,8 @@ class _BookReaderState extends State<BookReader> {
                     onWillPop: handleWillPop,
                     child: Stack(
                       children: [
-                        BookPage(
-                          content: pages.isNotEmpty ? pages[cursor] : '暂无内容',
-                          name: widget.name,
-                          total: pages.length,
-                          onPageDown: () => handlePageDown(pages.length),
-                          onPageUp: () => handlePageUp(pages.length),
-                        ),
-                        if (showOverlay)
-                          BookPageOverlay(
-                            author: widget.author ?? '',
-                            cover: Image.network(''),
-                            duration: duration,
-                            name: widget.name,
-                            onPop: handlePop,
-                          )
+                        const BookPage(),
+                        if (showOverlay) const BookPageOverlay()
                       ],
                     ),
                   );
@@ -262,13 +254,12 @@ class _BookReaderState extends State<BookReader> {
   }
 
   Future<bool> handleWillPop() {
-    setState(() {
-      showOverlay = false;
-    });
+    showSystemUiOverlay();
     return Future.value(true);
   }
 
-  void handlePageDown(int length) {
+  void handlePageDown() {
+    final length = pages.length;
     if (cursor + 1 < length) {
       setState(() {
         cursor = cursor + 1;
@@ -285,7 +276,8 @@ class _BookReaderState extends State<BookReader> {
     }
   }
 
-  void handlePageUp(int length) {
+  void handlePageUp() {
+    final length = pages.length;
     if (cursor > 0) {
       setState(() {
         cursor = cursor - 1;
