@@ -16,7 +16,7 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
   late AnimationController controller;
 
   @override
-  void initState() {
+  void didChangeDependencies() {
     final duration = BookReaderScope.of(context)!.duration;
     controller = AnimationController(duration: duration, vsync: this);
     animation = Tween(
@@ -24,8 +24,7 @@ class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
       end: Offset.zero,
     ).animate(controller);
     controller.forward();
-
-    super.initState();
+    super.didChangeDependencies();
   }
 
   @override

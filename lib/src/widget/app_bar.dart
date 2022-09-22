@@ -15,7 +15,7 @@ class _BookPageOverlayAppBarState extends State<BookPageOverlayAppBar>
   late Animation<Offset> animation;
 
   @override
-  void initState() {
+  void didChangeDependencies() {
     final duration = BookReaderScope.of(context)!.duration;
     controller = AnimationController(duration: duration, vsync: this);
     animation = Tween(
@@ -23,7 +23,7 @@ class _BookPageOverlayAppBarState extends State<BookPageOverlayAppBar>
       end: Offset.zero,
     ).animate(controller);
     controller.forward();
-    super.initState();
+    super.didChangeDependencies();
   }
 
   @override
