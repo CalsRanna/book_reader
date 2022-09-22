@@ -26,6 +26,7 @@ class BookReader extends StatefulWidget {
     this.total,
     this.withExtraButtons,
     this.onBookPressed,
+    this.onCached,
     this.onCatalogueNavigated,
     this.onChapterChanged,
     this.onPop,
@@ -73,6 +74,10 @@ class BookReader extends StatefulWidget {
   /// show detail of book and something else you wanna display.
   final void Function()? onBookPressed;
 
+  /// This is used to cache data from internet or some other way, and the
+  /// param is the amount of chapters should be cached.
+  final void Function(int amount)? onCached;
+
   /// If this function is null then the button of catalogue should not be
   /// available. And this is used to navigate to the new page to display
   /// custom catalogue page.
@@ -106,6 +111,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
   late List<String> pages;
   late TextStyle pageStyle;
   late double progress;
+  bool showCache = false;
   bool showOverlay = false;
   late Size size;
   late Color textColor;
@@ -211,10 +217,13 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
         pages: pages,
         pageStyle: pageStyle,
         progress: progress,
+        showCache: showCache,
         textColor: textColor,
         title: widget.title,
         total: total,
         withExtraButtons: withExtraButtons,
+        onCached: handleCached,
+        onCacheNavigated: handleCacheNavigated,
         onCatalogueNavigated: widget.onCatalogueNavigated,
         onChapterDown: handleChapterDown,
         onChapterUp: handleChapterUp,
@@ -224,6 +233,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
         onPageDown: handlePageDown,
         onPageUp: handlePageUp,
         onPop: handlePop,
+        onRefresh: handleRefresh,
         onSliderChanged: handleSliderChanged,
         onSliderChangeEnd: handleSliderChangeEnd,
         child: Stack(
@@ -348,6 +358,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
 
   void handleOverlayRemoved() {
     setState(() {
+      showCache = false;
       showOverlay = false;
     });
   }
@@ -379,5 +390,32 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
   void handlePop() {
     Navigator.of(context).pop();
     widget.onPop?.call(index, cursor);
+  }
+
+  void handleCacheNavigated() {
+    setState(() {
+      showCache = true;
+    });
+  }
+
+  void handleCached(int amount) {
+    setState(() {
+      showCache = false;
+      showOverlay = false;
+    });
+    widget.onCached?.call(amount);
+    Message.show(context, duration: duration, message: '缓存开始');
+  }
+
+  void handleRefresh() {
+    setState(() {
+      showCache = false;
+      showOverlay = false;
+    });
+    fetchContent();
+    calculateProgress();
+    setState(() {
+      cursor = 0;
+    });
   }
 }
