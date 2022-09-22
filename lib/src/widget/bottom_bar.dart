@@ -2,43 +2,18 @@ import 'package:flutter/material.dart';
 
 import 'scope.dart';
 
-class BookPageOverlayBottomBar extends StatefulWidget {
+class BookPageOverlayBottomBar extends StatelessWidget {
   const BookPageOverlayBottomBar({super.key});
 
   @override
-  State<BookPageOverlayBottomBar> createState() =>
-      _BookPageOverlayBottomBarState();
-}
-
-class _BookPageOverlayBottomBarState extends State<BookPageOverlayBottomBar>
-    with SingleTickerProviderStateMixin {
-  late Animation<Offset> animation;
-  late AnimationController controller;
-
-  @override
-  void didChangeDependencies() {
-    final duration = BookReaderScope.of(context)!.duration;
-    controller = AnimationController(duration: duration, vsync: this);
-    animation = Tween(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(controller);
-    controller.forward();
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    controller.reverse();
-    controller.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = BookReaderScope.of(context)!.controller;
     final isDarkMode = BookReaderScope.of(context)!.isDarkMode;
     var style = const TextStyle(fontSize: 12);
+    final animation = Tween(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(controller..forward());
     return SlideTransition(
       position: animation,
       child: Container(

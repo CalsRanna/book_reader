@@ -4,6 +4,7 @@ class BookReaderScope extends InheritedWidget {
   const BookReaderScope({
     super.key,
     required this.backgroundColor,
+    required this.controller,
     required this.cursor,
     required this.duration,
     required this.footerPadding,
@@ -41,6 +42,7 @@ class BookReaderScope extends InheritedWidget {
   });
 
   final Color backgroundColor;
+  final AnimationController controller;
   final int cursor;
   final Duration duration;
   final EdgeInsets footerPadding;
@@ -78,6 +80,7 @@ class BookReaderScope extends InheritedWidget {
   @override
   bool updateShouldNotify(BookReaderScope oldWidget) {
     return backgroundColor != oldWidget.backgroundColor ||
+        controller != oldWidget.controller ||
         cursor != oldWidget.cursor ||
         duration != oldWidget.duration ||
         footerPadding != oldWidget.footerPadding ||

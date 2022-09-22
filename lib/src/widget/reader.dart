@@ -91,8 +91,9 @@ class BookReader extends StatefulWidget {
   State<BookReader> createState() => _BookReaderState();
 }
 
-class _BookReaderState extends State<BookReader> {
+class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
   late Color backgroundColor;
+  late AnimationController controller;
   late int cursor;
   late Duration duration;
   bool hasError = false;
@@ -136,6 +137,7 @@ class _BookReaderState extends State<BookReader> {
     textColor = Colors.black;
     withExtraButtons = widget.withExtraButtons ?? true;
 
+    controller = AnimationController(duration: duration, vsync: this);
     pageStyle = TextStyle(color: textColor, fontSize: 18);
 
     super.initState();
@@ -143,11 +145,16 @@ class _BookReaderState extends State<BookReader> {
 
   @override
   void didChangeDependencies() {
-    hideSystemUiOverlay();
     calculateAvailableSize();
     fetchContent();
     calculateProgress();
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   void calculateAvailableSize() {
@@ -183,10 +190,15 @@ class _BookReaderState extends State<BookReader> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: showOverlay ? SystemUiOverlay.values : [],
+    );
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: BookReaderScope(
         backgroundColor: backgroundColor,
+        controller: controller,
         cursor: cursor,
         duration: duration,
         footerPadding: footerPadding,
@@ -216,7 +228,7 @@ class _BookReaderState extends State<BookReader> {
         onSliderChangeEnd: handleSliderChangeEnd,
         child: Stack(
           children: [
-            Container(color: widget.backgroundColor),
+            Container(color: backgroundColor),
             Builder(builder: (context) {
               if (isLoading) {
                 return const BookLoading();
@@ -242,19 +254,12 @@ class _BookReaderState extends State<BookReader> {
     );
   }
 
-  void hideSystemUiOverlay() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-  }
-
-  void showSystemUiOverlay() {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.manual,
-      overlays: SystemUiOverlay.values,
-    );
-  }
-
+  /// This function is used to show SystemUiOverlay when slide to return
+  /// previous page.
   Future<bool> handleWillPop() {
-    showSystemUiOverlay();
+    setState(() {
+      showOverlay = true;
+    });
     return Future.value(true);
   }
 
@@ -271,6 +276,7 @@ class _BookReaderState extends State<BookReader> {
       });
       fetchContent();
       calculateProgress();
+      widget.onChapterChanged?.call(index);
     } else {
       Message.show(context, duration: duration, message: '已经是最后一页');
     }
@@ -291,6 +297,7 @@ class _BookReaderState extends State<BookReader> {
       setState(() {
         cursor = length - 1;
       });
+      widget.onChapterChanged?.call(index);
     } else {
       Message.show(context, duration: duration, message: '已经是第一页');
     }
@@ -304,6 +311,7 @@ class _BookReaderState extends State<BookReader> {
       });
       fetchContent();
       calculateProgress();
+      widget.onChapterChanged?.call(index);
     } else {
       Message.show(context, duration: duration, message: '已经是最后一章');
     }
@@ -317,6 +325,7 @@ class _BookReaderState extends State<BookReader> {
       });
       fetchContent();
       calculateProgress();
+      widget.onChapterChanged?.call(index);
     } else {
       Message.show(context, duration: duration, message: '已经是第一章');
     }
@@ -327,18 +336,17 @@ class _BookReaderState extends State<BookReader> {
       isDarkMode = !isDarkMode;
       backgroundColor = isDarkMode ? Colors.black : Colors.white;
       textColor = isDarkMode ? Colors.white : Colors.black;
+      pageStyle = TextStyle(color: textColor, fontSize: 18);
     });
   }
 
   void handleOverlayInserted() {
-    showSystemUiOverlay();
     setState(() {
       showOverlay = true;
     });
   }
 
   void handleOverlayRemoved() {
-    hideSystemUiOverlay();
     setState(() {
       showOverlay = false;
     });
