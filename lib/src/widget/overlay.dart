@@ -1,9 +1,10 @@
-import 'package:book_reader/src/widget/cache.dart';
 import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
 import 'bottom_bar.dart';
+import 'cache.dart';
 import 'scope.dart';
+import 'setting.dart';
 
 class BookPageOverlay extends StatefulWidget {
   const BookPageOverlay({super.key});
@@ -18,6 +19,7 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   @override
   Widget build(BuildContext context) {
     final showCache = BookReaderScope.of(context)!.showCache;
+    final showSetting = BookReaderScope.of(context)!.showSetting;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -31,7 +33,8 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
             ),
           ),
           if (showCache) const BookPageOverlayCache(),
-          if (!showCache) const BookPageOverlayBottomBar(),
+          if (showSetting) const BookPageOverlaySetting(),
+          if (!showCache && !showSetting) const BookPageOverlayBottomBar(),
         ],
       ),
     );

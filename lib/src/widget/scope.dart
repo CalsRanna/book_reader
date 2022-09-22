@@ -18,6 +18,7 @@ class BookReaderScope extends InheritedWidget {
     required this.pageStyle,
     required this.progress,
     required this.showCache,
+    required this.showSetting,
     required this.textColor,
     this.title,
     required this.total,
@@ -37,6 +38,7 @@ class BookReaderScope extends InheritedWidget {
     this.onPageUp,
     this.onPop,
     this.onRefresh,
+    this.onSetting,
     this.onSettingNavigated,
     this.onSliderChanged,
     this.onSliderChangeEnd,
@@ -58,6 +60,7 @@ class BookReaderScope extends InheritedWidget {
   final TextStyle pageStyle;
   final double progress;
   final bool showCache;
+  final bool showSetting;
   final Color textColor;
   final String? title;
   final int total;
@@ -76,6 +79,7 @@ class BookReaderScope extends InheritedWidget {
   final void Function()? onPageUp;
   final void Function()? onPop;
   final void Function()? onRefresh;
+  final void Function()? onSetting;
   final void Function()? onSettingNavigated;
   final void Function(double)? onSliderChanged;
   final void Function(double)? onSliderChangeEnd;
@@ -94,6 +98,7 @@ class BookReaderScope extends InheritedWidget {
         name != oldWidget.name ||
         progress != oldWidget.progress ||
         showCache != oldWidget.showCache ||
+        showSetting != oldWidget.showSetting ||
         textColor != oldWidget.textColor ||
         title != oldWidget.title ||
         total != oldWidget.total ||

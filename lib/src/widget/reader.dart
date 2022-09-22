@@ -30,6 +30,7 @@ class BookReader extends StatefulWidget {
     this.onCatalogueNavigated,
     this.onChapterChanged,
     this.onPop,
+    this.onSettingNavigated,
   });
 
   /// Author of book, can be null if you weren't sure about it.
@@ -92,6 +93,9 @@ class BookReader extends StatefulWidget {
   /// second param should be the [cursor] of pages.
   final void Function(int index, int cursor)? onPop;
 
+  /// This is used to navigate to the new page to display settings.
+  final void Function()? onSettingNavigated;
+
   @override
   State<BookReader> createState() => _BookReaderState();
 }
@@ -113,6 +117,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
   late double progress;
   bool showCache = false;
   bool showOverlay = false;
+  bool showSetting = false;
   late Size size;
   late Color textColor;
   late int total;
@@ -218,6 +223,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
         pageStyle: pageStyle,
         progress: progress,
         showCache: showCache,
+        showSetting: showSetting,
         textColor: textColor,
         title: widget.title,
         total: total,
@@ -234,6 +240,8 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
         onPageUp: handlePageUp,
         onPop: handlePop,
         onRefresh: handleRefresh,
+        onSetting: widget.onSettingNavigated,
+        onSettingNavigated: handleSettingNavigated,
         onSliderChanged: handleSliderChanged,
         onSliderChangeEnd: handleSliderChangeEnd,
         child: Stack(
@@ -360,6 +368,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
     setState(() {
       showCache = false;
       showOverlay = false;
+      showSetting = false;
     });
   }
 
@@ -416,6 +425,12 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
     calculateProgress();
     setState(() {
       cursor = 0;
+    });
+  }
+
+  void handleSettingNavigated() {
+    setState(() {
+      showSetting = true;
     });
   }
 }
