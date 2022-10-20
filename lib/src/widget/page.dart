@@ -9,29 +9,26 @@ class BookPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = BookReaderScope.of(context)!.backgroundColor;
     final cursor = BookReaderScope.of(context)!.cursor;
     final padding = BookReaderScope.of(context)!.pagePadding;
     final pages = BookReaderScope.of(context)!.pages;
     final style = BookReaderScope.of(context)!.pageStyle;
-    final content = pages.isNotEmpty ? pages[cursor] : '暂无内容';
-    return Scaffold(
-      backgroundColor: color,
-      body: GestureDetector(
-        onTapUp: (details) => handleTap(context, details),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const BookPageHeader(),
-            Expanded(
-              child: Container(
-                margin: padding,
-                child: Text(content, style: style),
-              ),
+    final content = pages[cursor];
+    return GestureDetector(
+      onTapUp: (details) => handleTap(context, details),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const BookPageHeader(),
+          Expanded(
+            child: Container(
+              margin: padding,
+              width: double.infinity,
+              child: Text(content, style: style),
             ),
-            const BookPageFooter(),
-          ],
-        ),
+          ),
+          const BookPageFooter(),
+        ],
       ),
     );
   }

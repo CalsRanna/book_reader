@@ -21,22 +21,19 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
     final showCache = BookReaderScope.of(context)!.showCache;
     final showSetting = BookReaderScope.of(context)!.showSetting;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          const BookPageOverlayAppBar(),
-          Expanded(
-            child: GestureDetector(
-              onTap: handleTap,
-              child: Container(color: Colors.transparent),
-            ),
+    return Column(
+      children: [
+        const BookPageOverlayAppBar(),
+        Expanded(
+          child: GestureDetector(
+            onTap: handleTap,
+            child: Container(color: Colors.transparent),
           ),
-          if (showCache) const BookPageOverlayCache(),
-          if (showSetting) const BookPageOverlaySetting(),
-          if (!showCache && !showSetting) const BookPageOverlayBottomBar(),
-        ],
-      ),
+        ),
+        if (showCache) const BookPageOverlayCache(),
+        if (showSetting) const BookPageOverlaySetting(),
+        if (!showCache && !showSetting) const BookPageOverlayBottomBar(),
+      ],
     );
   }
 

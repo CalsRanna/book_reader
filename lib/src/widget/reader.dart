@@ -205,68 +205,57 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
       SystemUiMode.manual,
       overlays: showOverlay ? SystemUiOverlay.values : [],
     );
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: BookReaderScope(
-        backgroundColor: backgroundColor,
-        controller: controller,
-        cursor: cursor,
-        duration: duration,
-        footerPadding: footerPadding,
-        headerPadding: headerPadding,
-        index: index,
-        isDarkMode: isDarkMode,
-        isLoading: isLoading,
-        name: widget.name,
-        pagePadding: pagePadding,
-        pages: pages,
-        pageStyle: pageStyle,
-        progress: progress,
-        showCache: showCache,
-        showSetting: showSetting,
-        textColor: textColor,
-        title: widget.title,
-        total: total,
-        withExtraButtons: withExtraButtons,
-        onCached: handleCached,
-        onCacheNavigated: handleCacheNavigated,
-        onCatalogueNavigated: widget.onCatalogueNavigated,
-        onChapterDown: handleChapterDown,
-        onChapterUp: handleChapterUp,
-        onDarkModeChanged: handleDarkModeChanged,
-        onOverlayInserted: handleOverlayInserted,
-        onOverlayRemoved: handleOverlayRemoved,
-        onPageDown: handlePageDown,
-        onPageUp: handlePageUp,
-        onPop: handlePop,
-        onRefresh: handleRefresh,
-        onSetting: widget.onSettingNavigated,
-        onSettingNavigated: handleSettingNavigated,
-        onSliderChanged: handleSliderChanged,
-        onSliderChangeEnd: handleSliderChangeEnd,
-        child: Stack(
-          children: [
-            Container(color: backgroundColor),
-            Builder(builder: (context) {
-              if (isLoading) {
-                return const BookLoading();
-              } else {
-                if (hasError) {
-                  return const Text('Error');
-                } else {
-                  return WillPopScope(
-                    onWillPop: handleWillPop,
-                    child: Stack(
-                      children: [
-                        const BookPage(),
-                        if (showOverlay) const BookPageOverlay()
-                      ],
-                    ),
-                  );
-                }
-              }
-            }),
-          ],
+    return BookReaderScope(
+      backgroundColor: backgroundColor,
+      controller: controller,
+      cursor: cursor,
+      duration: duration,
+      footerPadding: footerPadding,
+      headerPadding: headerPadding,
+      index: index,
+      isDarkMode: isDarkMode,
+      isLoading: isLoading,
+      name: widget.name,
+      pagePadding: pagePadding,
+      pages: pages,
+      pageStyle: pageStyle,
+      progress: progress,
+      showCache: showCache,
+      showSetting: showSetting,
+      textColor: textColor,
+      title: widget.title,
+      total: total,
+      withExtraButtons: withExtraButtons,
+      onCached: handleCached,
+      onCacheNavigated: handleCacheNavigated,
+      onCatalogueNavigated: widget.onCatalogueNavigated,
+      onChapterDown: handleChapterDown,
+      onChapterUp: handleChapterUp,
+      onDarkModeChanged: handleDarkModeChanged,
+      onOverlayInserted: handleOverlayInserted,
+      onOverlayRemoved: handleOverlayRemoved,
+      onPageDown: handlePageDown,
+      onPageUp: handlePageUp,
+      onPop: handlePop,
+      onRefresh: handleRefresh,
+      onSetting: widget.onSettingNavigated,
+      onSettingNavigated: handleSettingNavigated,
+      onSliderChanged: handleSliderChanged,
+      onSliderChangeEnd: handleSliderChangeEnd,
+      child: WillPopScope(
+        onWillPop: handleWillPop,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            children: [
+              Container(color: backgroundColor),
+              if (isLoading) const BookLoading(),
+              if (hasError) const Text('Error'),
+              if (pages.isEmpty) const Text('暂无内容'),
+              if (pages.isNotEmpty) const BookPage(),
+              if (showOverlay) const BookPageOverlay(),
+            ],
+          ),
         ),
       ),
     );
