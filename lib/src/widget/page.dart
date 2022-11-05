@@ -13,8 +13,10 @@ class BookPage extends StatelessWidget {
     final padding = BookReaderScope.of(context)!.pagePadding;
     final pages = BookReaderScope.of(context)!.pages;
     final style = BookReaderScope.of(context)!.pageStyle;
-    final content = pages[cursor];
-    return GestureDetector(
+    final content = pages.isNotEmpty ? pages[cursor] : '暂无内容';
+    return Scaffold(
+        // backgroundColor: color,
+        body: GestureDetector(
       onTapUp: (details) => handleTap(context, details),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +32,7 @@ class BookPage extends StatelessWidget {
           const BookPageFooter(),
         ],
       ),
-    );
+    ));
   }
 
   void handleTap(BuildContext context, TapUpDetails details) {

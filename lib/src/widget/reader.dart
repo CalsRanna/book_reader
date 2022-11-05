@@ -1,3 +1,5 @@
+import 'package:book_reader/src/widget/app_bar.dart';
+import 'package:book_reader/src/widget/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -100,7 +102,8 @@ class BookReader extends StatefulWidget {
   State<BookReader> createState() => _BookReaderState();
 }
 
-class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
+class _BookReaderState extends State<BookReader>
+    with SingleTickerProviderStateMixin {
   late Color backgroundColor;
   late AnimationController controller;
   late int cursor;
@@ -191,6 +194,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
       pages = Paginator(size: size, style: pageStyle).paginate(content);
       isLoading = false;
     });
+    print(pages);
   }
 
   void calculateProgress() {
@@ -205,57 +209,54 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
       SystemUiMode.manual,
       overlays: showOverlay ? SystemUiOverlay.values : [],
     );
-    return BookReaderScope(
-      backgroundColor: backgroundColor,
-      controller: controller,
-      cursor: cursor,
-      duration: duration,
-      footerPadding: footerPadding,
-      headerPadding: headerPadding,
-      index: index,
-      isDarkMode: isDarkMode,
-      isLoading: isLoading,
-      name: widget.name,
-      pagePadding: pagePadding,
-      pages: pages,
-      pageStyle: pageStyle,
-      progress: progress,
-      showCache: showCache,
-      showSetting: showSetting,
-      textColor: textColor,
-      title: widget.title,
-      total: total,
-      withExtraButtons: withExtraButtons,
-      onCached: handleCached,
-      onCacheNavigated: handleCacheNavigated,
-      onCatalogueNavigated: widget.onCatalogueNavigated,
-      onChapterDown: handleChapterDown,
-      onChapterUp: handleChapterUp,
-      onDarkModeChanged: handleDarkModeChanged,
-      onOverlayInserted: handleOverlayInserted,
-      onOverlayRemoved: handleOverlayRemoved,
-      onPageDown: handlePageDown,
-      onPageUp: handlePageUp,
-      onPop: handlePop,
-      onRefresh: handleRefresh,
-      onSetting: widget.onSettingNavigated,
-      onSettingNavigated: handleSettingNavigated,
-      onSliderChanged: handleSliderChanged,
-      onSliderChangeEnd: handleSliderChangeEnd,
-      child: WillPopScope(
-        onWillPop: handleWillPop,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Stack(
-            children: [
-              Container(color: backgroundColor),
-              if (isLoading) const BookLoading(),
-              if (hasError) const Text('Error'),
-              if (pages.isEmpty) const Text('暂无内容'),
-              if (pages.isNotEmpty) const BookPage(),
-              if (showOverlay) const BookPageOverlay(),
-            ],
-          ),
+    return Scaffold(
+      // backgroundColor: Colors.transparent,
+      body: BookReaderScope(
+        backgroundColor: backgroundColor,
+        controller: controller,
+        cursor: cursor,
+        duration: duration,
+        footerPadding: footerPadding,
+        headerPadding: headerPadding,
+        index: index,
+        isDarkMode: isDarkMode,
+        isLoading: isLoading,
+        name: widget.name,
+        pagePadding: pagePadding,
+        pages: pages,
+        pageStyle: pageStyle,
+        progress: progress,
+        showCache: showCache,
+        showSetting: showSetting,
+        textColor: textColor,
+        title: widget.title,
+        total: total,
+        withExtraButtons: withExtraButtons,
+        onCached: handleCached,
+        onCacheNavigated: handleCacheNavigated,
+        onCatalogueNavigated: widget.onCatalogueNavigated,
+        onChapterDown: handleChapterDown,
+        onChapterUp: handleChapterUp,
+        onDarkModeChanged: handleDarkModeChanged,
+        onOverlayInserted: handleOverlayInserted,
+        onOverlayRemoved: handleOverlayRemoved,
+        onPageDown: handlePageDown,
+        onPageUp: handlePageUp,
+        onPop: handlePop,
+        onRefresh: handleRefresh,
+        onSetting: widget.onSettingNavigated,
+        onSettingNavigated: handleSettingNavigated,
+        onSliderChanged: handleSliderChanged,
+        onSliderChangeEnd: handleSliderChangeEnd,
+        child: Stack(
+          children: [
+            // Container(color: backgroundColor),
+            // const BookLoading(),
+            // const Text('Error'),
+            const BookPage(),
+            // const BookPageOverlayAppBar(),
+            const BookPageOverlayBottomBar(),
+          ],
         ),
       ),
     );
@@ -348,9 +349,10 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
   }
 
   void handleOverlayInserted() {
-    setState(() {
-      showOverlay = true;
-    });
+    // setState(() {
+    //   showOverlay = true;
+    // });
+    controller.repeat(reverse: true);
   }
 
   void handleOverlayRemoved() {
