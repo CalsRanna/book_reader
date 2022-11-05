@@ -9,11 +9,11 @@ class BookPageOverlayBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = BookReaderScope.of(context)!.controller;
     final isDarkMode = BookReaderScope.of(context)!.isDarkMode;
-    var style = const TextStyle(fontSize: 12);
     final animation = Tween(
       begin: const Offset(0, 1),
       end: Offset.zero,
-    ).animate(controller..forward());
+    ).animate(controller);
+    var style = const TextStyle(fontSize: 12);
     return SlideTransition(
       position: animation,
       child: Container(

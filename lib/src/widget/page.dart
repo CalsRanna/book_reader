@@ -26,6 +26,7 @@ class BookPage extends StatelessWidget {
             Expanded(
               child: Container(
                 margin: padding,
+                width: double.infinity,
                 child: Text(content, style: style),
               ),
             ),

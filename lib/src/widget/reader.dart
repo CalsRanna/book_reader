@@ -1,3 +1,5 @@
+import 'package:book_reader/src/widget/app_bar.dart';
+import 'package:book_reader/src/widget/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -100,7 +102,8 @@ class BookReader extends StatefulWidget {
   State<BookReader> createState() => _BookReaderState();
 }
 
-class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
+class _BookReaderState extends State<BookReader>
+    with SingleTickerProviderStateMixin {
   late Color backgroundColor;
   late AnimationController controller;
   late int cursor;
@@ -191,6 +194,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
       pages = Paginator(size: size, style: pageStyle).paginate(content);
       isLoading = false;
     });
+    print(pages);
   }
 
   void calculateProgress() {
@@ -206,7 +210,7 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
       overlays: showOverlay ? SystemUiOverlay.values : [],
     );
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      // backgroundColor: Colors.transparent,
       body: BookReaderScope(
         backgroundColor: backgroundColor,
         controller: controller,
@@ -246,26 +250,12 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
         onSliderChangeEnd: handleSliderChangeEnd,
         child: Stack(
           children: [
-            Container(color: backgroundColor),
-            Builder(builder: (context) {
-              if (isLoading) {
-                return const BookLoading();
-              } else {
-                if (hasError) {
-                  return const Text('Error');
-                } else {
-                  return WillPopScope(
-                    onWillPop: handleWillPop,
-                    child: Stack(
-                      children: [
-                        const BookPage(),
-                        if (showOverlay) const BookPageOverlay()
-                      ],
-                    ),
-                  );
-                }
-              }
-            }),
+            // Container(color: backgroundColor),
+            // const BookLoading(),
+            // const Text('Error'),
+            const BookPage(),
+            // const BookPageOverlayAppBar(),
+            const BookPageOverlayBottomBar(),
           ],
         ),
       ),
@@ -359,9 +349,10 @@ class _BookReaderState extends State<BookReader> with TickerProviderStateMixin {
   }
 
   void handleOverlayInserted() {
-    setState(() {
-      showOverlay = true;
-    });
+    // setState(() {
+    //   showOverlay = true;
+    // });
+    controller.repeat(reverse: true);
   }
 
   void handleOverlayRemoved() {

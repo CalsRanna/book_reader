@@ -1,3 +1,4 @@
+import 'package:book_reader/src/widget/mask.dart';
 import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
@@ -21,21 +22,21 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
     final showCache = BookReaderScope.of(context)!.showCache;
     final showSetting = BookReaderScope.of(context)!.showSetting;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          const BookPageOverlayAppBar(),
-          Expanded(
-            child: GestureDetector(
-              onTap: handleTap,
-              child: Container(color: Colors.transparent),
-            ),
-          ),
-          if (showCache) const BookPageOverlayCache(),
-          if (showSetting) const BookPageOverlaySetting(),
-          if (!showCache && !showSetting) const BookPageOverlayBottomBar(),
-        ],
+    return GestureDetector(
+      onTap: () {
+        BookReaderScope.of(context)?.controller.forward();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            const BookPageOverlayAppBar(),
+            const BookReaderOverlayMask(),
+            if (showCache) const BookPageOverlayCache(),
+            if (showSetting) const BookPageOverlaySetting(),
+            if (!showCache && !showSetting) const BookPageOverlayBottomBar(),
+          ],
+        ),
       ),
     );
   }
@@ -47,12 +48,13 @@ class _BookPageOverlayState extends State<BookPageOverlay> {
   }
 
   void handleTap() {
-    if (visible) {
-      setState(() {
-        visible = false;
-      });
-    } else {
-      BookReaderScope.of(context)!.onOverlayRemoved?.call();
-    }
+    final controller = BookReaderScope.of(context)?.controller.reverse();
+    // if (visible) {
+    //   setState(() {
+    //     visible = false;
+    //   });
+    // } else {
+    //   BookReaderScope.of(context)!.onOverlayRemoved?.call();
+    // }
   }
 }

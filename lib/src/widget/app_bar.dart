@@ -9,11 +9,11 @@ class BookPageOverlayAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = BookReaderScope.of(context)!.controller;
     final animation = Tween(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(controller..forward());
-    return SlideTransition(
-      position: animation,
+      begin: RelativeRect.fromLTRB(0, -56, 0, 0),
+      end: RelativeRect.fromLTRB(0, 0, 0, 0),
+    ).animate(controller);
+    return PositionedTransition(
+      rect: animation,
       child: Container(
         color: Theme.of(context).colorScheme.surface,
         child: Column(
