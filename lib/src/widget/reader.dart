@@ -1,17 +1,13 @@
-import 'package:book_reader/src/widget/app_bar.dart';
-import 'package:book_reader/src/widget/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../tool/message.dart';
 import '../tool/paginator.dart';
-import 'loading.dart';
-import 'overlay.dart';
 import 'page.dart';
 import 'scope.dart';
 
 /// [BookReader] is a widget used to read book. It provide some way to
-/// paginate and can be customered by you own choice since we provide
+/// paginate and can be customized by you own choice since we provide
 /// many params to do that.
 class BookReader extends StatefulWidget {
   const BookReader({
@@ -47,7 +43,7 @@ class BookReader extends StatefulWidget {
   final int? cursor;
 
   /// Duration for animation, include app and bottom bar slide transition,
-  /// and page transtion automated.
+  /// and page transition automated.
   final Duration? duration;
 
   /// Used to fetch content from internet or some other way.**[NOTICE]**
@@ -73,7 +69,7 @@ class BookReader extends StatefulWidget {
   final bool? withExtraButtons;
 
   /// If [onBookPressed] is null, then the button of detail should not be
-  /// availabled. And this function is used to navigate to a new page to
+  /// available. And this function is used to navigate to a new page to
   /// show detail of book and something else you wanna display.
   final void Function()? onBookPressed;
 
@@ -194,7 +190,6 @@ class _BookReaderState extends State<BookReader>
       pages = Paginator(size: size, style: pageStyle).paginate(content);
       isLoading = false;
     });
-    print(pages);
   }
 
   void calculateProgress() {
@@ -248,14 +243,14 @@ class _BookReaderState extends State<BookReader>
         onSettingNavigated: handleSettingNavigated,
         onSliderChanged: handleSliderChanged,
         onSliderChangeEnd: handleSliderChangeEnd,
-        child: Stack(
+        child: const Stack(
           children: [
             // Container(color: backgroundColor),
             // const BookLoading(),
             // const Text('Error'),
-            const BookPage(),
+            BookPage(),
             // const BookPageOverlayAppBar(),
-            const BookPageOverlayBottomBar(),
+            // const BookPageOverlayBottomBar(),
           ],
         ),
       ),
@@ -352,7 +347,14 @@ class _BookReaderState extends State<BookReader>
     // setState(() {
     //   showOverlay = true;
     // });
-    controller.repeat(reverse: true);
+    if (showOverlay) {
+      controller.forward();
+    } else {
+      controller.reverse();
+    }
+    setState(() {
+      showOverlay = !showOverlay;
+    });
   }
 
   void handleOverlayRemoved() {

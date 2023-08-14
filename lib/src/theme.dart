@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReaderTheme {
-  Color backgroudColor;
+  Color backgroundColor;
   EdgeInsets footerPadding;
   EdgeInsets headerPadding;
   Color textColor;
@@ -12,7 +12,7 @@ class ReaderTheme {
   double widgetFontSize;
 
   ReaderTheme({
-    required this.backgroudColor,
+    required this.backgroundColor,
     required this.footerPadding,
     required this.headerPadding,
     required this.textColor,
