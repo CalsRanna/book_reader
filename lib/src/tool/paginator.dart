@@ -13,7 +13,7 @@ class Paginator {
       var start = offset;
       var end = content.length;
       var middle = ((start + end) ~/ 2);
-      for (var i = 0; i < 20; i++) {
+      for (var i = 0; i < 16; i++) {
         if (_layout(content.substring(offset, middle))) {
           if (middle <= start || middle >= end) {
             break;
@@ -28,6 +28,14 @@ class Paginator {
       pages.add(content.substring(offset, middle));
       offset = middle;
     }
+    if (pages.isNotEmpty) {
+      var last = pages.last;
+      if (_layout('$last${content[content.length - 1]}')) {
+        pages.last = '$last${content[content.length - 1]}';
+      } else {
+        pages.add(content[content.length - 1]);
+      }
+    }
     return pages;
   }
 
@@ -40,7 +48,7 @@ class Paginator {
       textDirection: TextDirection.ltr,
     );
     painter.layout(maxWidth: size.width);
-    if (painter.didExceedMaxLines || painter.size.height > size.height) {
+    if (painter.size.height > size.height) {
       return false;
     } else {
       return true;

@@ -1,37 +1,70 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
-import 'scope.dart';
-
 class BookPage extends StatelessWidget {
-  const BookPage({super.key});
+  const BookPage({
+    super.key,
+    required this.padding,
+    required this.headerPadding,
+    required this.footerPadding,
+    required this.cursor,
+    required this.style,
+    required this.pages,
+    required this.name,
+    required this.title,
+    required this.headerStyle,
+    required this.footerStyle,
+    required this.progress,
+    this.onOverlayInserted,
+    this.onPageDown,
+    this.onPageUp,
+  });
+
+  final EdgeInsets padding;
+  final EdgeInsets headerPadding;
+  final EdgeInsets footerPadding;
+  final int cursor;
+  final TextStyle style;
+  final TextStyle headerStyle;
+  final TextStyle footerStyle;
+  final List<String> pages;
+  final String name;
+  final String title;
+  final double progress;
+  final void Function()? onPageDown;
+  final void Function()? onPageUp;
+  final void Function()? onOverlayInserted;
 
   @override
   Widget build(BuildContext context) {
-    final cursor = BookReaderScope.of(context)!.cursor;
-    final padding = BookReaderScope.of(context)!.pagePadding;
-    final pages = BookReaderScope.of(context)!.pages;
-    final style = BookReaderScope.of(context)!.pageStyle;
     final content = pages.isNotEmpty ? pages[cursor] : '暂无内容';
-    return Scaffold(
-      // backgroundColor: color,
-      body: GestureDetector(
-        onTapUp: (details) => handleTap(context, details),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const BookPageHeader(),
-            Expanded(
-              child: Container(
-                margin: padding,
-                width: double.infinity,
-                child: Text(content, style: style),
-              ),
+
+    return GestureDetector(
+      onTapUp: (details) => handleTap(context, details),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BookPageHeader(
+            cursor: cursor,
+            name: name,
+            padding: headerPadding,
+            title: title,
+            style: headerStyle,
+          ),
+          Expanded(
+            child: Container(
+              padding: padding,
+              width: double.infinity,
+              child: Text(content, style: style),
             ),
-            const BookPageFooter(),
-          ],
-        ),
+          ),
+          BookPageFooter(
+            cursor: cursor,
+            padding: footerPadding,
+            pages: pages,
+            progress: progress,
+            style: footerStyle,
+          ),
+        ],
       ),
     );
   }
@@ -40,34 +73,38 @@ class BookPage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final position = details.globalPosition;
     if (position.dx < width ~/ 3) {
-      BookReaderScope.of(context)!.onPageUp?.call();
+      onPageUp?.call();
     } else if (position.dx > width ~/ 3 * 2) {
-      BookReaderScope.of(context)!.onPageDown?.call();
+      onPageDown?.call();
     } else {
-      BookReaderScope.of(context)!.onOverlayInserted?.call();
+      onOverlayInserted?.call();
     }
   }
 }
 
 class BookPageHeader extends StatelessWidget {
-  const BookPageHeader({super.key});
+  const BookPageHeader({
+    super.key,
+    required this.name,
+    required this.title,
+    required this.cursor,
+    required this.padding,
+    required this.style,
+  });
+
+  final String name;
+  final String title;
+  final TextStyle style;
+  final EdgeInsets padding;
+  final int cursor;
 
   @override
   Widget build(BuildContext context) {
-    final color = BookReaderScope.of(context)!.textColor;
-    final padding = BookReaderScope.of(context)!.headerPadding;
-    final name = BookReaderScope.of(context)!.name;
-    final style = TextStyle(color: color, fontSize: 10, height: 1);
-    var text = name;
-    if (BookReaderScope.of(context)!.cursor > 0 &&
-        BookReaderScope.of(context)!.title != null) {
-      text = BookReaderScope.of(context)!.title!;
-    }
     return Container(
       color: Colors.transparent,
       padding: padding,
       child: Text(
-        text,
+        cursor > 0 ? title : name,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: style,
@@ -77,26 +114,30 @@ class BookPageHeader extends StatelessWidget {
 }
 
 class BookPageFooter extends StatelessWidget {
-  const BookPageFooter({super.key});
+  const BookPageFooter({
+    super.key,
+    required this.cursor,
+    required this.padding,
+    required this.pages,
+    required this.progress,
+    required this.style,
+  });
+
+  final int cursor;
+  final EdgeInsets padding;
+  final List<String> pages;
+  final double progress;
+  final TextStyle style;
 
   @override
   Widget build(BuildContext context) {
-    final current = BookReaderScope.of(context)!.cursor + 1;
     final now = DateTime.now();
-    final padding = BookReaderScope.of(context)!.footerPadding;
-    final pages = BookReaderScope.of(context)!.pages;
-    final progress = BookReaderScope.of(context)!.progress * 100;
-    final style = TextStyle(
-      color: BookReaderScope.of(context)!.textColor,
-      fontSize: 10,
-      height: 1,
-    );
     List<Widget> left = [const Text('获取中')];
     if (pages.isNotEmpty) {
       left = [
-        Text('$current/${pages.length}'),
+        Text('${cursor + 1}/${pages.length}'),
         const SizedBox(width: 8),
-        Text('${progress.toStringAsFixed(2)}%'),
+        Text('${(progress * 100).toStringAsFixed(2)}%'),
       ];
     }
     return Container(
@@ -111,10 +152,6 @@ class BookPageFooter extends StatelessWidget {
             ...left,
             const Expanded(child: SizedBox()),
             Text('${now.hour}:${now.minute.toString().padLeft(2, '0')}'),
-            Transform.rotate(
-              angle: pi / 2,
-              child: const Icon(Icons.battery_5_bar_outlined, size: 10),
-            ),
           ],
         ),
       ),
