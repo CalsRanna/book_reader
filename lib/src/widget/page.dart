@@ -71,13 +71,20 @@ class BookPage extends StatelessWidget {
 
   void handleTap(BuildContext context, TapUpDetails details) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.width;
     final position = details.globalPosition;
-    if (position.dx < width ~/ 3) {
+    if (position.dx < width / 3) {
       onPageUp?.call();
-    } else if (position.dx > width ~/ 3 * 2) {
+    } else if (position.dx > width / 3 * 2) {
       onPageDown?.call();
     } else {
-      onOverlayInserted?.call();
+      if (position.dy < height / 4) {
+        onPageUp?.call();
+      } else if (position.dy > height / 4 * 3) {
+        onPageDown?.call();
+      } else {
+        onOverlayInserted?.call();
+      }
     }
   }
 }
@@ -131,15 +138,18 @@ class BookPageFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
     List<Widget> left = [const Text('获取中')];
     if (pages.isNotEmpty) {
       left = [
         Text('${cursor + 1}/${pages.length}'),
-        const SizedBox(width: 8),
-        Text('${(progress * 100).toStringAsFixed(2)}%'),
+        const SizedBox(width: 16),
+        Text('${(progress * 100).toStringAsFixed(1)}%'),
       ];
     }
+    final now = DateTime.now();
+    final hour = now.hour.toString().padLeft(2, '0');
+    final minute = now.minute.toString().padLeft(2, '0');
+
     return Container(
       color: Colors.transparent,
       padding: padding,
@@ -151,7 +161,7 @@ class BookPageFooter extends StatelessWidget {
           children: [
             ...left,
             const Expanded(child: SizedBox()),
-            Text('${now.hour}:${now.minute.toString().padLeft(2, '0')}'),
+            Text('$hour:$minute'),
           ],
         ),
       ),

@@ -77,10 +77,10 @@ class BookPageOverlayAppBar extends StatelessWidget {
                   children: [Icon(Icons.refresh_outlined), Text('刷新')],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.more_horiz_outlined),
-                onPressed: () {},
-              ),
+              // IconButton(
+              //   icon: const Icon(Icons.more_horiz_outlined),
+              //   onPressed: () {},
+              // ),
             ],
           ),
         ],

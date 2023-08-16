@@ -126,10 +126,7 @@ class _BookReaderState extends State<BookReader>
   late int index;
   bool isDarkMode = false;
   bool isLoading = true;
-  EdgeInsets pagePadding = const EdgeInsets.symmetric(
-    horizontal: 16,
-    vertical: 8,
-  );
+  EdgeInsets pagePadding = const EdgeInsets.symmetric(horizontal: 16);
   List<String> pages = [];
   TextStyle pageStyle = const TextStyle(
     fontSize: 18,
@@ -186,43 +183,46 @@ class _BookReaderState extends State<BookReader>
       SystemUiMode.manual,
       overlays: showOverlay ? SystemUiOverlay.values : [],
     );
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(color: Colors.white),
-          if (isLoading) BookLoading(onTap: handleOverlayInserted),
-          // const Text('Error'),
-          if (!isLoading)
-            BookPage(
-              cursor: cursor,
-              pages: pages,
-              padding: pagePadding,
-              headerPadding: headerPadding,
-              name: widget.name,
-              title: widget.title ?? widget.name,
-              footerPadding: footerPadding,
-              progress: progress,
-              onOverlayInserted: handleOverlayInserted,
-              onPageDown: handlePageDown,
-              onPageUp: handlePageUp,
-              footerStyle: footerStyle,
-              headerStyle: headerStyle,
-              style: pageStyle,
-            ),
-          if (showOverlay)
-            BookOverlay(
-              showCache: false,
-              onOverlayRemoved: handleOverlayInserted,
-              onPop: handlePop,
-              onRefresh: handleRefresh,
-              onChapterDown: handleChapterDown,
-              onChapterUp: handleChapterUp,
-              progress: progress,
-              onProgressChanged: handleSliderChanged,
-              onProgressChangedEnd: handleSliderChangeEnd,
-              onCatalogueNavigated: handleCatalogueNavigated,
-            )
-        ],
+    return WillPopScope(
+      onWillPop: handleWillPop,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Container(color: Colors.white),
+            if (isLoading) BookLoading(onTap: handleOverlayInserted),
+            // const Text('Error'),
+            if (!isLoading)
+              BookPage(
+                cursor: cursor,
+                pages: pages,
+                padding: pagePadding,
+                headerPadding: headerPadding,
+                name: widget.name,
+                title: widget.title ?? widget.name,
+                footerPadding: footerPadding,
+                progress: progress,
+                onOverlayInserted: handleOverlayInserted,
+                onPageDown: handlePageDown,
+                onPageUp: handlePageUp,
+                footerStyle: footerStyle,
+                headerStyle: headerStyle,
+                style: pageStyle,
+              ),
+            if (showOverlay)
+              BookOverlay(
+                showCache: false,
+                onOverlayRemoved: handleOverlayInserted,
+                onPop: handlePop,
+                onRefresh: handleRefresh,
+                onChapterDown: handleChapterDown,
+                onChapterUp: handleChapterUp,
+                progress: progress,
+                onProgressChanged: handleSliderChanged,
+                onProgressChangedEnd: handleSliderChangeEnd,
+                onCatalogueNavigated: handleCatalogueNavigated,
+              )
+          ],
+        ),
       ),
     );
   }
@@ -241,7 +241,6 @@ class _BookReaderState extends State<BookReader>
         footerStyle.fontSize! * footerStyle.height!;
     final width = globalSize.width - pagePadding.horizontal;
     var content = await widget.future(index);
-    content = content.replaceAll('\n', '\n\n');
     setState(() {
       pages = Paginator(
         size: Size(width, height),
@@ -257,6 +256,7 @@ class _BookReaderState extends State<BookReader>
     setState(() {
       showOverlay = true;
     });
+    widget.onPop?.call(index, cursor);
     return Future.value(true);
   }
 
