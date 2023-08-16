@@ -115,13 +115,13 @@ class _BookReaderState extends State<BookReader>
     bottom: 24,
     left: 16,
     right: 16,
-    top: 8,
+    top: 0,
   );
   late EdgeInsets headerPadding = const EdgeInsets.only(
-    bottom: 8,
+    bottom: 0,
     left: 16,
     right: 16,
-    top: 67,
+    top: 59,
   );
   late int index;
   bool isDarkMode = false;
@@ -131,8 +131,8 @@ class _BookReaderState extends State<BookReader>
   TextStyle pageStyle = const TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 26 / 18,
-    letterSpacing: 0,
+    height: 36 / 18,
+    letterSpacing: 0.2,
   );
   TextStyle headerStyle = const TextStyle(fontSize: 10, height: 1);
   TextStyle footerStyle = const TextStyle(fontSize: 10, height: 1);
@@ -425,7 +425,6 @@ class _BookReaderState extends State<BookReader>
           footerStyle.fontSize! * footerStyle.height!;
       final width = globalSize.width - pagePadding.horizontal;
       var content = await widget.onRefresh!.call(index);
-      content = content.replaceAll('\n', '\n\n');
       setState(() {
         pages = Paginator(
           size: Size(width, height),

@@ -68,7 +68,7 @@ class BookPageOverlayAppBar extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: onTap,
-                icon: const Icon(Icons.chevron_left_outlined),
+                icon: const Icon(Icons.arrow_back_ios),
               ),
               const Expanded(child: SizedBox()),
               TextButton(

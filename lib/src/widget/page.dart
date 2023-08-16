@@ -54,7 +54,11 @@ class BookPage extends StatelessWidget {
             child: Container(
               padding: padding,
               width: double.infinity,
-              child: Text(content, style: style),
+              child: Text(
+                content,
+                style: style,
+                textDirection: TextDirection.ltr,
+              ),
             ),
           ),
           BookPageFooter(
@@ -71,8 +75,8 @@ class BookPage extends StatelessWidget {
 
   void handleTap(BuildContext context, TapUpDetails details) {
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.width;
-    final position = details.globalPosition;
+    final height = MediaQuery.of(context).size.height;
+    final position = details.localPosition;
     if (position.dx < width / 3) {
       onPageUp?.call();
     } else if (position.dx > width / 3 * 2) {

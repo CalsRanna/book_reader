@@ -1,3 +1,7 @@
+## 0.0.4
+
+- update default style
+
 ## 0.0.3
 
 - change page based on 5 areas
