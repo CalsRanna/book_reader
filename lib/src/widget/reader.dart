@@ -1,5 +1,5 @@
+import 'package:book_reader/book_reader.dart';
 import 'package:book_reader/src/tool/paginator.dart';
-import 'package:book_reader/src/widget/loading.dart';
 import 'package:book_reader/src/widget/overlay.dart';
 import 'package:book_reader/src/widget/page.dart';
 import 'package:flutter/material.dart';
@@ -12,16 +12,15 @@ class BookReader extends StatefulWidget {
   const BookReader({
     super.key,
     this.author,
-    this.backgroundColor,
     this.cover,
     this.cursor,
     this.duration,
     required this.future,
     this.index,
     required this.name,
+    this.theme = const ReaderTheme(),
     this.title,
     this.total,
-    this.withExtraButtons,
     this.onBookPressed,
     this.onCached,
     this.onCatalogueNavigated,
@@ -36,8 +35,6 @@ class BookReader extends StatefulWidget {
   /// Author of book, can be null if you weren't sure about it.
   final String? author;
 
-  /// If [backgroundColor] is null, the default value is [Colors.white].
-  final Color? backgroundColor;
   final Image? cover;
 
   /// The value of [cursor] is the index of pages paginated with style
@@ -59,16 +56,14 @@ class BookReader extends StatefulWidget {
   /// Name of book, used to displayed in header and detail modal.
   final String name;
 
+  final ReaderTheme theme;
+
   /// Title of chapter, used to displayed in header while is not first page.
   final String? title;
 
   /// Amount of chapters, if [total] is null then the default value **[1]**
   /// would be used.
   final int? total;
-
-  /// Determine whether show extra buttons or not. If it was null, the
-  /// default value is true.
-  final bool? withExtraButtons;
 
   /// If [onBookPressed] is null, then the button of detail should not be
   /// available. And this function is used to navigate to a new page to
@@ -106,56 +101,28 @@ class BookReader extends StatefulWidget {
 
 class _BookReaderState extends State<BookReader>
     with SingleTickerProviderStateMixin {
-  late Color backgroundColor;
   late AnimationController controller;
   late int cursor;
   late Duration duration;
   bool hasError = false;
-  EdgeInsets footerPadding = const EdgeInsets.only(
-    bottom: 24,
-    left: 16,
-    right: 16,
-    top: 0,
-  );
-  late EdgeInsets headerPadding = const EdgeInsets.only(
-    bottom: 0,
-    left: 16,
-    right: 16,
-    top: 59,
-  );
   late int index;
   bool isDarkMode = false;
   bool isLoading = true;
-  EdgeInsets pagePadding = const EdgeInsets.symmetric(horizontal: 16);
   List<String> pages = [];
-  TextStyle pageStyle = const TextStyle(
-    fontSize: 18,
-    fontWeight: FontWeight.w400,
-    height: 36 / 18,
-    letterSpacing: 0.2,
-  );
-  TextStyle headerStyle = const TextStyle(fontSize: 10, height: 1);
-  TextStyle footerStyle = const TextStyle(fontSize: 10, height: 1);
   late double progress;
   bool showCache = false;
   bool showOverlay = false;
-  late Color textColor;
   late int total;
-  late bool withExtraButtons;
 
   @override
   void initState() {
-    backgroundColor = widget.backgroundColor ?? Colors.white;
+    super.initState();
     cursor = widget.cursor ?? 0;
     duration = widget.duration ?? const Duration(milliseconds: 200);
     index = widget.index ?? 0;
     progress = 0;
     total = widget.total ?? 1;
-    withExtraButtons = widget.withExtraButtons ?? true;
-
     controller = AnimationController(duration: duration, vsync: this);
-
-    super.initState();
   }
 
   @override
@@ -171,12 +138,6 @@ class _BookReaderState extends State<BookReader>
     super.dispose();
   }
 
-  void calculateProgress() {
-    setState(() {
-      progress = (index + 1) / total;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(
@@ -188,38 +149,31 @@ class _BookReaderState extends State<BookReader>
       child: Scaffold(
         body: Stack(
           children: [
-            Container(color: Colors.white),
-            if (isLoading) BookLoading(onTap: handleOverlayInserted),
-            // const Text('Error'),
-            if (!isLoading)
-              BookPage(
-                cursor: cursor,
-                pages: pages,
-                padding: pagePadding,
-                headerPadding: headerPadding,
-                name: widget.name,
-                title: widget.title ?? widget.name,
-                footerPadding: footerPadding,
-                progress: progress,
-                onOverlayInserted: handleOverlayInserted,
-                onPageDown: handlePageDown,
-                onPageUp: handlePageUp,
-                footerStyle: footerStyle,
-                headerStyle: headerStyle,
-                style: pageStyle,
-              ),
+            Container(color: widget.theme.backgroundColor),
+            BookPage(
+              cursor: cursor,
+              loading: isLoading,
+              name: widget.name,
+              pages: pages,
+              progress: progress,
+              theme: widget.theme,
+              title: widget.title ?? widget.name,
+              onOverlayInserted: handleOverlayInserted,
+              onPageDown: handlePageDown,
+              onPageUp: handlePageUp,
+            ),
             if (showOverlay)
               BookOverlay(
+                progress: progress,
                 showCache: false,
-                onOverlayRemoved: handleOverlayInserted,
-                onPop: handlePop,
-                onRefresh: handleRefresh,
+                onCatalogueNavigated: handleCatalogueNavigated,
                 onChapterDown: handleChapterDown,
                 onChapterUp: handleChapterUp,
-                progress: progress,
+                onOverlayRemoved: handleOverlayInserted,
+                onPop: handlePop,
                 onProgressChanged: handleSliderChanged,
                 onProgressChangedEnd: handleSliderChangeEnd,
-                onCatalogueNavigated: handleCatalogueNavigated,
+                onRefresh: handleRefresh,
               )
           ],
         ),
@@ -234,19 +188,25 @@ class _BookReaderState extends State<BookReader>
     final mediaQuery = MediaQuery.of(context);
     final globalSize = mediaQuery.size;
     final height = globalSize.height -
-        headerPadding.vertical -
-        headerStyle.fontSize! * headerStyle.height! -
-        pagePadding.vertical -
-        footerPadding.vertical -
-        footerStyle.fontSize! * footerStyle.height!;
-    final width = globalSize.width - pagePadding.horizontal;
+        widget.theme.headerPadding.vertical -
+        widget.theme.headerStyle.fontSize! * widget.theme.headerStyle.height! -
+        widget.theme.pagePadding.vertical -
+        widget.theme.footerPadding.vertical -
+        widget.theme.footerStyle.fontSize! * widget.theme.footerStyle.height!;
+    final width = globalSize.width - widget.theme.pagePadding.horizontal;
     var content = await widget.future(index);
     setState(() {
       pages = Paginator(
         size: Size(width, height),
-        style: pageStyle,
+        style: widget.theme.pageStyle,
       ).paginate(content);
       isLoading = false;
+    });
+  }
+
+  void calculateProgress() {
+    setState(() {
+      progress = (index + 1) / total;
     });
   }
 
@@ -332,15 +292,6 @@ class _BookReaderState extends State<BookReader>
     widget.onProgressChanged?.call(cursor);
   }
 
-  void handleDarkModeChanged() {
-    setState(() {
-      isDarkMode = !isDarkMode;
-      backgroundColor = isDarkMode ? Colors.black : Colors.white;
-      textColor = isDarkMode ? Colors.white : Colors.black;
-      pageStyle = TextStyle(color: textColor, fontSize: 18);
-    });
-  }
-
   void handleOverlayInserted() {
     setState(() {
       showOverlay = !showOverlay;
@@ -418,17 +369,18 @@ class _BookReaderState extends State<BookReader>
       final mediaQuery = MediaQuery.of(context);
       final globalSize = mediaQuery.size;
       final height = globalSize.height -
-          headerPadding.vertical -
-          headerStyle.fontSize! * headerStyle.height! -
-          pagePadding.vertical -
-          footerPadding.vertical -
-          footerStyle.fontSize! * footerStyle.height!;
-      final width = globalSize.width - pagePadding.horizontal;
+          widget.theme.headerPadding.vertical -
+          widget.theme.headerStyle.fontSize! *
+              widget.theme.headerStyle.height! -
+          widget.theme.pagePadding.vertical -
+          widget.theme.footerPadding.vertical -
+          widget.theme.footerStyle.fontSize! * widget.theme.footerStyle.height!;
+      final width = globalSize.width - widget.theme.pagePadding.horizontal;
       var content = await widget.onRefresh!.call(index);
       setState(() {
         pages = Paginator(
           size: Size(width, height),
-          style: pageStyle,
+          style: widget.theme.pageStyle,
         ).paginate(content);
         isLoading = false;
       });

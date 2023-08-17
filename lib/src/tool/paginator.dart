@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Paginator {
-  const Paginator({required this.size, required this.style});
+  const Paginator({
+    this.direction = TextDirection.ltr,
+    required this.size,
+    required this.style,
+  });
 
+  final TextDirection direction;
   final Size size;
   final TextStyle style;
 
@@ -45,13 +50,9 @@ class Paginator {
   bool _layout(String text) {
     final painter = TextPainter(
       text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
+      textDirection: direction,
     );
     painter.layout(maxWidth: size.width);
-    if (painter.size.height > size.height) {
-      return false;
-    } else {
-      return true;
-    }
+    return painter.size.height <= size.height;
   }
 }

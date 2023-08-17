@@ -1,3 +1,7 @@
+## 0.0.5
+
+- group all style into reader theme
+
 ## 0.0.4
 
 - update default style

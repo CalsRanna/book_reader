@@ -1,35 +1,28 @@
+import 'package:book_reader/book_reader.dart';
 import 'package:flutter/material.dart';
 
 class BookPage extends StatelessWidget {
   const BookPage({
     super.key,
-    required this.padding,
-    required this.headerPadding,
-    required this.footerPadding,
     required this.cursor,
-    required this.style,
-    required this.pages,
+    required this.loading,
     required this.name,
-    required this.title,
-    required this.headerStyle,
-    required this.footerStyle,
+    required this.pages,
     required this.progress,
+    required this.theme,
+    required this.title,
     this.onOverlayInserted,
     this.onPageDown,
     this.onPageUp,
   });
 
-  final EdgeInsets padding;
-  final EdgeInsets headerPadding;
-  final EdgeInsets footerPadding;
   final int cursor;
-  final TextStyle style;
-  final TextStyle headerStyle;
-  final TextStyle footerStyle;
-  final List<String> pages;
+  final bool loading;
   final String name;
-  final String title;
+  final List<String> pages;
   final double progress;
+  final ReaderTheme theme;
+  final String title;
   final void Function()? onPageDown;
   final void Function()? onPageUp;
   final void Function()? onOverlayInserted;
@@ -40,37 +33,49 @@ class BookPage extends StatelessWidget {
 
     return GestureDetector(
       onTapUp: (details) => handleTap(context, details),
+      onHorizontalDragEnd: (details) => handleEnd(context, details),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           BookPageHeader(
             cursor: cursor,
             name: name,
-            padding: headerPadding,
+            padding: theme.headerPadding,
             title: title,
-            style: headerStyle,
+            style: theme.headerStyle,
           ),
           Expanded(
-            child: Container(
-              padding: padding,
-              width: double.infinity,
-              child: Text(
-                content,
-                style: style,
-                textDirection: TextDirection.ltr,
-              ),
-            ),
+            child: loading
+                ? const Center(child: CircularProgressIndicator.adaptive())
+                : Container(
+                    padding: theme.pagePadding,
+                    width: double.infinity,
+                    child: Text(
+                      content,
+                      style: theme.pageStyle,
+                      textDirection: TextDirection.ltr,
+                    ),
+                  ),
           ),
           BookPageFooter(
             cursor: cursor,
-            padding: footerPadding,
+            loading: loading,
+            padding: theme.footerPadding,
             pages: pages,
             progress: progress,
-            style: footerStyle,
+            style: theme.footerStyle,
           ),
         ],
       ),
     );
+  }
+
+  void handleEnd(BuildContext context, DragEndDetails details) {
+    if (details.primaryVelocity! < 0) {
+      onPageDown?.call();
+    } else {
+      onPageUp?.call();
+    }
   }
 
   void handleTap(BuildContext context, TapUpDetails details) {
@@ -128,6 +133,7 @@ class BookPageFooter extends StatelessWidget {
   const BookPageFooter({
     super.key,
     required this.cursor,
+    required this.loading,
     required this.padding,
     required this.pages,
     required this.progress,
@@ -135,6 +141,7 @@ class BookPageFooter extends StatelessWidget {
   });
 
   final int cursor;
+  final bool loading;
   final EdgeInsets padding;
   final List<String> pages;
   final double progress;
@@ -143,7 +150,7 @@ class BookPageFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> left = [const Text('获取中')];
-    if (pages.isNotEmpty) {
+    if (!loading && pages.isNotEmpty) {
       left = [
         Text('${cursor + 1}/${pages.length}'),
         const SizedBox(width: 16),
