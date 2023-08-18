@@ -1,3 +1,7 @@
+## 0.0.6
+
+- support dark mode
+
 ## 0.0.5
 
 - group all style into reader theme
