@@ -130,6 +130,7 @@ class _BookReaderState extends State<BookReader>
     theme = widget.theme ?? ReaderTheme();
     total = widget.total ?? 1;
     controller = AnimationController(duration: duration, vsync: this);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
   @override
@@ -147,16 +148,16 @@ class _BookReaderState extends State<BookReader>
 
   @override
   void dispose() {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
     controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.manual,
-      overlays: showOverlay ? SystemUiOverlay.values : [],
-    );
     return Scaffold(
       body: Stack(
         children: [
@@ -181,7 +182,7 @@ class _BookReaderState extends State<BookReader>
               onCatalogueNavigated: handleCatalogueNavigated,
               onChapterDown: handleChapterDown,
               onChapterUp: handleChapterUp,
-              onOverlayRemoved: handleOverlayInserted,
+              onOverlayRemoved: handleOverlayRemoved,
               onPop: handlePop,
               onProgressChanged: handleSliderChanged,
               onProgressChangedEnd: handleSliderChangeEnd,
@@ -306,8 +307,12 @@ class _BookReaderState extends State<BookReader>
 
   void handleOverlayInserted() {
     setState(() {
-      showOverlay = !showOverlay;
+      showOverlay = true;
     });
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
   }
 
   void handleOverlayRemoved() {
@@ -315,6 +320,7 @@ class _BookReaderState extends State<BookReader>
       showCache = false;
       showOverlay = false;
     });
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
   void handleSliderChanged(double value) {

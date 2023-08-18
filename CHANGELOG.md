@@ -1,3 +1,7 @@
+## 0.0.7
+
+- fix system chrome
+
 ## 0.0.6
 
 - support dark mode
