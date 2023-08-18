@@ -1,37 +1,56 @@
 import 'package:flutter/material.dart';
 
 class ReaderTheme {
-  final Color backgroundColor = Colors.white;
-  final String backgroundImage = '';
-  final EdgeInsets footerPadding = const EdgeInsets.only(
+  Color backgroundColor = Colors.white;
+  String backgroundImage = '';
+  EdgeInsets footerPadding = const EdgeInsets.only(
     bottom: 24,
     left: 16,
     right: 16,
     top: 0,
   );
-  final TextStyle footerStyle = const TextStyle(
+  TextStyle footerStyle = const TextStyle(
     fontSize: 10,
     height: 1,
   );
-  final EdgeInsets headerPadding = const EdgeInsets.only(
+  EdgeInsets headerPadding = const EdgeInsets.only(
     bottom: 0,
     left: 16,
     right: 16,
     top: 59,
   );
-  final TextStyle headerStyle = const TextStyle(
+  TextStyle headerStyle = const TextStyle(
     fontSize: 10,
     height: 1,
   );
-  final EdgeInsets pagePadding = const EdgeInsets.symmetric(
+  EdgeInsets pagePadding = const EdgeInsets.symmetric(
     horizontal: 16,
   );
-  final TextStyle pageStyle = const TextStyle(
+  TextStyle pageStyle = const TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w400,
     height: 36 / 18,
     letterSpacing: 0.2,
   );
 
-  const ReaderTheme();
+  ReaderTheme copyWith({
+    Color? backgroundColor,
+    String? backgroundImage,
+    EdgeInsets? footerPadding,
+    TextStyle? footerStyle,
+    EdgeInsets? headerPadding,
+    TextStyle? headerStyle,
+    EdgeInsets? pagePadding,
+    TextStyle? pageStyle,
+  }) {
+    return ReaderTheme()
+      ..backgroundColor = backgroundColor ?? this.backgroundColor
+      ..backgroundImage = backgroundImage ?? this.backgroundImage
+      ..footerPadding = footerPadding ?? this.footerPadding
+      ..footerStyle = footerStyle ?? this.footerStyle
+      ..headerPadding = headerPadding ?? this.headerPadding
+      ..headerStyle = headerStyle ?? this.headerStyle
+      ..pagePadding = pagePadding ?? this.pagePadding
+      ..pageStyle = pageStyle ?? this.pageStyle;
+  }
 }

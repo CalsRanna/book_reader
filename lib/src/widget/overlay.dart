@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class BookOverlay extends StatefulWidget {
   const BookOverlay({
     super.key,
+    required this.darkMode,
     required this.showCache,
     this.onOverlayRemoved,
     this.onPop,
@@ -12,9 +13,11 @@ class BookOverlay extends StatefulWidget {
     this.onProgressChanged,
     this.onProgressChangedEnd,
     this.onCatalogueNavigated,
+    this.onDarkModePressed,
     this.progress = 0,
   });
 
+  final bool darkMode;
   final bool showCache;
   final double progress;
   final void Function()? onPop;
@@ -25,6 +28,7 @@ class BookOverlay extends StatefulWidget {
   final void Function(double)? onProgressChanged;
   final void Function(double)? onProgressChangedEnd;
   final void Function()? onCatalogueNavigated;
+  final void Function()? onDarkModePressed;
 
   @override
   State<BookOverlay> createState() => _BookOverlayState();
@@ -39,12 +43,14 @@ class _BookOverlayState extends State<BookOverlay> {
         BookReaderOverlayMask(onTap: widget.onOverlayRemoved),
         if (widget.showCache) const BookPageOverlayCache(),
         BookPageOverlayBottomBar(
+          darkMode: widget.darkMode,
           progress: widget.progress,
           onChapterDown: widget.onChapterDown,
           onChapterUp: widget.onChapterUp,
           onProgressChanged: widget.onProgressChanged,
           onProgressChangedEnd: widget.onProgressChangedEnd,
           onCatalogueNavigated: widget.onCatalogueNavigated,
+          onDarkModePressed: widget.onDarkModePressed,
         ),
       ],
     );
@@ -151,22 +157,24 @@ class BookPageOverlayCache extends StatelessWidget {
 class BookPageOverlayBottomBar extends StatelessWidget {
   const BookPageOverlayBottomBar({
     super.key,
-    this.isDarkMode = false,
+    this.darkMode = false,
     this.onChapterDown,
     this.onChapterUp,
     this.onProgressChanged,
     this.onProgressChangedEnd,
     this.onCatalogueNavigated,
     this.progress = 0,
+    this.onDarkModePressed,
   });
 
-  final bool isDarkMode;
+  final bool darkMode;
   final double progress;
   final void Function()? onChapterDown;
   final void Function()? onChapterUp;
   final void Function(double)? onProgressChanged;
   final void Function(double)? onProgressChangedEnd;
   final void Function()? onCatalogueNavigated;
+  final void Function()? onDarkModePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -215,12 +223,14 @@ class BookPageOverlayBottomBar extends StatelessWidget {
                   ],
                 ),
               ),
-              const TextButton(
-                onPressed: null,
+              TextButton(
+                onPressed: onDarkModePressed,
                 child: Column(
                   children: [
-                    Icon(Icons.dark_mode),
-                    Text('夜间'),
+                    Icon(darkMode
+                        ? Icons.light_mode_outlined
+                        : Icons.dark_mode_outlined),
+                    Text(darkMode ? '白天' : '夜间'),
                   ],
                 ),
               ),

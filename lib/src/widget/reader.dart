@@ -14,11 +14,12 @@ class BookReader extends StatefulWidget {
     this.author,
     this.cover,
     this.cursor,
+    this.darkMode = false,
     this.duration,
     required this.future,
     this.index,
     required this.name,
-    this.theme = const ReaderTheme(),
+    this.theme,
     this.title,
     this.total,
     this.onBookPressed,
@@ -30,6 +31,7 @@ class BookReader extends StatefulWidget {
     this.onMessage,
     this.onRefresh,
     this.onProgressChanged,
+    this.onDarkModePressed,
   });
 
   /// Author of book, can be null if you weren't sure about it.
@@ -40,6 +42,8 @@ class BookReader extends StatefulWidget {
   /// The value of [cursor] is the index of pages paginated with style
   /// given. If it is null then the default value is 0.
   final int? cursor;
+
+  final bool darkMode;
 
   /// Duration for animation, include app and bottom bar slide transition,
   /// and page transition automated.
@@ -56,7 +60,7 @@ class BookReader extends StatefulWidget {
   /// Name of book, used to displayed in header and detail modal.
   final String name;
 
-  final ReaderTheme theme;
+  final ReaderTheme? theme;
 
   /// Title of chapter, used to displayed in header while is not first page.
   final String? title;
@@ -91,6 +95,8 @@ class BookReader extends StatefulWidget {
   /// This is used to navigate to the new page to display settings.
   final void Function()? onSettingNavigated;
 
+  final void Function()? onDarkModePressed;
+
   final void Function(String)? onMessage;
   final Future<String> Function(int)? onRefresh;
   final void Function(int)? onProgressChanged;
@@ -106,12 +112,12 @@ class _BookReaderState extends State<BookReader>
   late Duration duration;
   bool hasError = false;
   late int index;
-  bool isDarkMode = false;
   bool isLoading = true;
   List<String> pages = [];
   late double progress;
   bool showCache = false;
   bool showOverlay = false;
+  late ReaderTheme theme;
   late int total;
 
   @override
@@ -121,6 +127,7 @@ class _BookReaderState extends State<BookReader>
     duration = widget.duration ?? const Duration(milliseconds: 200);
     index = widget.index ?? 0;
     progress = 0;
+    theme = widget.theme ?? ReaderTheme();
     total = widget.total ?? 1;
     controller = AnimationController(duration: duration, vsync: this);
   }
@@ -130,6 +137,12 @@ class _BookReaderState extends State<BookReader>
     fetchContent();
     calculateProgress();
     super.didChangeDependencies();
+  }
+
+  @override
+  void didUpdateWidget(covariant BookReader oldWidget) {
+    theme = widget.theme ?? ReaderTheme();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -144,39 +157,38 @@ class _BookReaderState extends State<BookReader>
       SystemUiMode.manual,
       overlays: showOverlay ? SystemUiOverlay.values : [],
     );
-    return WillPopScope(
-      onWillPop: handleWillPop,
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Container(color: widget.theme.backgroundColor),
-            BookPage(
-              cursor: cursor,
-              loading: isLoading,
-              name: widget.name,
-              pages: pages,
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(color: theme.backgroundColor),
+          BookPage(
+            cursor: cursor,
+            loading: isLoading,
+            name: widget.name,
+            pages: pages,
+            progress: progress,
+            theme: theme,
+            title: widget.title ?? widget.name,
+            onOverlayInserted: handleOverlayInserted,
+            onPageDown: handlePageDown,
+            onPageUp: handlePageUp,
+          ),
+          if (showOverlay)
+            BookOverlay(
+              darkMode: widget.darkMode,
               progress: progress,
-              theme: widget.theme,
-              title: widget.title ?? widget.name,
-              onOverlayInserted: handleOverlayInserted,
-              onPageDown: handlePageDown,
-              onPageUp: handlePageUp,
-            ),
-            if (showOverlay)
-              BookOverlay(
-                progress: progress,
-                showCache: false,
-                onCatalogueNavigated: handleCatalogueNavigated,
-                onChapterDown: handleChapterDown,
-                onChapterUp: handleChapterUp,
-                onOverlayRemoved: handleOverlayInserted,
-                onPop: handlePop,
-                onProgressChanged: handleSliderChanged,
-                onProgressChangedEnd: handleSliderChangeEnd,
-                onRefresh: handleRefresh,
-              )
-          ],
-        ),
+              showCache: false,
+              onCatalogueNavigated: handleCatalogueNavigated,
+              onChapterDown: handleChapterDown,
+              onChapterUp: handleChapterUp,
+              onOverlayRemoved: handleOverlayInserted,
+              onPop: handlePop,
+              onProgressChanged: handleSliderChanged,
+              onProgressChangedEnd: handleSliderChangeEnd,
+              onRefresh: handleRefresh,
+              onDarkModePressed: widget.onDarkModePressed,
+            )
+        ],
       ),
     );
   }
@@ -188,17 +200,17 @@ class _BookReaderState extends State<BookReader>
     final mediaQuery = MediaQuery.of(context);
     final globalSize = mediaQuery.size;
     final height = globalSize.height -
-        widget.theme.headerPadding.vertical -
-        widget.theme.headerStyle.fontSize! * widget.theme.headerStyle.height! -
-        widget.theme.pagePadding.vertical -
-        widget.theme.footerPadding.vertical -
-        widget.theme.footerStyle.fontSize! * widget.theme.footerStyle.height!;
-    final width = globalSize.width - widget.theme.pagePadding.horizontal;
+        theme.headerPadding.vertical -
+        theme.headerStyle.fontSize! * theme.headerStyle.height! -
+        theme.pagePadding.vertical -
+        theme.footerPadding.vertical -
+        theme.footerStyle.fontSize! * theme.footerStyle.height!;
+    final width = globalSize.width - theme.pagePadding.horizontal;
     var content = await widget.future(index);
     setState(() {
       pages = Paginator(
         size: Size(width, height),
-        style: widget.theme.pageStyle,
+        style: theme.pageStyle,
       ).paginate(content);
       isLoading = false;
     });
@@ -369,18 +381,17 @@ class _BookReaderState extends State<BookReader>
       final mediaQuery = MediaQuery.of(context);
       final globalSize = mediaQuery.size;
       final height = globalSize.height -
-          widget.theme.headerPadding.vertical -
-          widget.theme.headerStyle.fontSize! *
-              widget.theme.headerStyle.height! -
-          widget.theme.pagePadding.vertical -
-          widget.theme.footerPadding.vertical -
-          widget.theme.footerStyle.fontSize! * widget.theme.footerStyle.height!;
-      final width = globalSize.width - widget.theme.pagePadding.horizontal;
+          theme.headerPadding.vertical -
+          theme.headerStyle.fontSize! * theme.headerStyle.height! -
+          theme.pagePadding.vertical -
+          theme.footerPadding.vertical -
+          theme.footerStyle.fontSize! * theme.footerStyle.height!;
+      final width = globalSize.width - theme.pagePadding.horizontal;
       var content = await widget.onRefresh!.call(index);
       setState(() {
         pages = Paginator(
           size: Size(width, height),
-          style: widget.theme.pageStyle,
+          style: theme.pageStyle,
         ).paginate(content);
         isLoading = false;
       });
