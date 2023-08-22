@@ -30,6 +30,17 @@ class BookPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = pages.isNotEmpty ? pages[cursor] : '暂无内容';
+    final paragraphs = content.split('\n');
+    final length = paragraphs.length;
+    List<InlineSpan> children = [];
+    for (var i = 0; i < length; i++) {
+      children.add(TextSpan(text: paragraphs[i], style: theme.pageStyle));
+      if (i < length - 1) {
+        final height = (theme.pageStyle.height! - 0.5);
+        final paragraphStyle = theme.pageStyle.copyWith(height: height);
+        children.add(TextSpan(text: '\n\n', style: paragraphStyle));
+      }
+    }
 
     return GestureDetector(
       onTapUp: (details) => handleTap(context, details),
@@ -48,11 +59,11 @@ class BookPage extends StatelessWidget {
             child: loading
                 ? const Center(child: CircularProgressIndicator.adaptive())
                 : Container(
+                    alignment: pages.isEmpty ? Alignment.center : null,
                     padding: theme.pagePadding,
                     width: double.infinity,
-                    child: Text(
-                      content,
-                      style: theme.pageStyle,
+                    child: Text.rich(
+                      TextSpan(children: children),
                       textDirection: TextDirection.ltr,
                     ),
                   ),

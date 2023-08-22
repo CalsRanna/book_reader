@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:book_reader/book_reader.dart';
 import 'package:book_reader/src/tool/paginator.dart';
 import 'package:book_reader/src/widget/overlay.dart';
@@ -163,7 +165,7 @@ class _BookReaderState extends State<BookReader>
         children: [
           Container(color: theme.backgroundColor),
           BookPage(
-            cursor: cursor,
+            cursor: min(cursor, pages.length - 1),
             loading: isLoading,
             name: widget.name,
             pages: pages,

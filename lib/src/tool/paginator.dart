@@ -48,8 +48,21 @@ class Paginator {
   /// the return value is [true], means still in the available size,
   /// and [false] means not.
   bool _layout(String text) {
+    final paragraphs = text.split('\n');
+    final length = paragraphs.length;
+    List<InlineSpan> children = [];
+    for (var i = 0; i < length; i++) {
+      children.add(TextSpan(text: paragraphs[i], style: style));
+      if (i < length - 1) {
+        final height = (style.height! - 0.5);
+        final paragraphStyle = style.copyWith(height: height);
+        children.add(
+          TextSpan(text: '\n\n', style: paragraphStyle),
+        );
+      }
+    }
     final painter = TextPainter(
-      text: TextSpan(text: text, style: style),
+      text: TextSpan(children: children),
       textDirection: direction,
     );
     painter.layout(maxWidth: size.width);

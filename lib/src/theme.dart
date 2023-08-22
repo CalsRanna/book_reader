@@ -29,7 +29,7 @@ class ReaderTheme {
   TextStyle pageStyle = const TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 36 / 18,
+    height: 28 / 18,
     letterSpacing: 0.2,
   );
 
