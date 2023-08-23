@@ -45,25 +45,27 @@ class Paginator {
   /// and [false] means not.
   bool _layout(String text) {
     final direction = theme.textDirection;
-    final painter = TextPainter(text: _build(text), textDirection: direction);
+    final span = _build(text);
+    final painter = TextPainter(text: span, textDirection: direction);
     painter.layout(maxWidth: size.width);
     return painter.size.height <= size.height;
   }
 
   /// Build a [TextSpan] from the given text. Which will split into multi paragraphs.
   TextSpan _build(String text) {
-    final paragraphs = text.split('\n');
-    final length = paragraphs.length;
-    List<InlineSpan> children = [];
-    final style = theme.pageStyle;
-    final height = style.height! * 0.25;
-    final paragraphStyle = style.copyWith(height: height);
-    for (var i = 0; i < length; i++) {
-      children.add(TextSpan(text: '${paragraphs[i]}\n', style: style));
-      if (i < length - 1) {
-        children.add(TextSpan(text: '\n', style: paragraphStyle));
-      }
-    }
-    return TextSpan(children: children);
+    // final paragraphs = text.split('\n');
+    // final length = paragraphs.length;
+    // List<InlineSpan> children = [];
+    // final style = theme.pageStyle;
+    // final height = style.height! * 0.25;
+    // final paragraphStyle = style.copyWith(height: height);
+    // for (var i = 0; i < length; i++) {
+    //   children.add(TextSpan(text: '${paragraphs[i]}\n', style: style));
+    //   if (i < length - 1) {
+    //     children.add(TextSpan(text: '\n', style: paragraphStyle));
+    //   }
+    // }
+    // return TextSpan(children: children);
+    return TextSpan(text: text, style: theme.pageStyle);
   }
 }

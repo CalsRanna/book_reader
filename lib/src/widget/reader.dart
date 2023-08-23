@@ -160,8 +160,11 @@ class _BookReaderState extends State<BookReader>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
+    final colorScheme = Theme.of(context).colorScheme;
+    final onBackground = colorScheme.onBackground;
+    return DefaultTextStyle(
+      style: TextStyle(color: onBackground),
+      child: Stack(
         children: [
           Container(color: theme.backgroundColor),
           BookPage(

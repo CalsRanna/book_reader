@@ -30,7 +30,7 @@ class ReaderTheme {
     inherit: false,
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 28 / 18,
+    height: 40 / 18,
     letterSpacing: 0.2,
   );
   TextDirection textDirection = TextDirection.ltr;

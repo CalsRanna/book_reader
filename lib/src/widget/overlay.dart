@@ -190,10 +190,12 @@ class BookPageOverlayBottomBar extends StatelessWidget {
                 child: const Text('上一章'),
               ),
               Expanded(
-                child: Slider.adaptive(
-                  value: progress,
-                  onChanged: onProgressChanged,
-                  onChangeEnd: onProgressChangedEnd,
+                child: Material(
+                  child: Slider.adaptive(
+                    value: progress,
+                    onChanged: onProgressChanged,
+                    onChangeEnd: onProgressChangedEnd,
+                  ),
                 ),
               ),
               TextButton(
