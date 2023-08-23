@@ -1,3 +1,7 @@
+## 0.0.9
+
+- add indent per paragraph
+
 ## 0.0.8
 
 - add paragraph height

@@ -115,7 +115,7 @@ class _BookReaderState extends State<BookReader>
   bool hasError = false;
   late int index;
   bool isLoading = true;
-  List<String> pages = [];
+  List<TextSpan> pages = [];
   late double progress;
   bool showCache = false;
   bool showOverlay = false;
@@ -210,11 +210,9 @@ class _BookReaderState extends State<BookReader>
         theme.footerStyle.fontSize! * theme.footerStyle.height!;
     final width = globalSize.width - theme.pagePadding.horizontal;
     var content = await widget.future(index);
+    final paginator = Paginator(size: Size(width, height), theme: theme);
     setState(() {
-      pages = Paginator(
-        size: Size(width, height),
-        style: theme.pageStyle,
-      ).paginate(content);
+      pages = paginator.paginate(content);
       isLoading = false;
     });
   }
@@ -396,11 +394,9 @@ class _BookReaderState extends State<BookReader>
           theme.footerStyle.fontSize! * theme.footerStyle.height!;
       final width = globalSize.width - theme.pagePadding.horizontal;
       var content = await widget.onRefresh!.call(index);
+      final paginator = Paginator(size: Size(width, height), theme: theme);
       setState(() {
-        pages = Paginator(
-          size: Size(width, height),
-          style: theme.pageStyle,
-        ).paginate(content);
+        pages = paginator.paginate(content);
         isLoading = false;
       });
       calculateProgress();

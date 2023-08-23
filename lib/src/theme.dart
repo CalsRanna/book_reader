@@ -7,17 +7,17 @@ class ReaderTheme {
     bottom: 24,
     left: 16,
     right: 16,
-    top: 0,
+    top: 4,
   );
   TextStyle footerStyle = const TextStyle(
     fontSize: 10,
     height: 1,
   );
   EdgeInsets headerPadding = const EdgeInsets.only(
-    bottom: 0,
+    bottom: 4,
     left: 16,
     right: 16,
-    top: 59,
+    top: 43,
   );
   TextStyle headerStyle = const TextStyle(
     fontSize: 10,
@@ -27,11 +27,13 @@ class ReaderTheme {
     horizontal: 16,
   );
   TextStyle pageStyle = const TextStyle(
+    inherit: false,
     fontSize: 18,
     fontWeight: FontWeight.w400,
     height: 28 / 18,
     letterSpacing: 0.2,
   );
+  TextDirection textDirection = TextDirection.ltr;
 
   ReaderTheme copyWith({
     Color? backgroundColor,
@@ -42,6 +44,7 @@ class ReaderTheme {
     TextStyle? headerStyle,
     EdgeInsets? pagePadding,
     TextStyle? pageStyle,
+    TextDirection? textDirection,
   }) {
     return ReaderTheme()
       ..backgroundColor = backgroundColor ?? this.backgroundColor
@@ -51,6 +54,7 @@ class ReaderTheme {
       ..headerPadding = headerPadding ?? this.headerPadding
       ..headerStyle = headerStyle ?? this.headerStyle
       ..pagePadding = pagePadding ?? this.pagePadding
-      ..pageStyle = pageStyle ?? this.pageStyle;
+      ..pageStyle = pageStyle ?? this.pageStyle
+      ..textDirection = textDirection ?? this.textDirection;
   }
 }

@@ -19,7 +19,7 @@ class BookPage extends StatelessWidget {
   final int cursor;
   final bool loading;
   final String name;
-  final List<String> pages;
+  final List<TextSpan> pages;
   final double progress;
   final ReaderTheme theme;
   final String title;
@@ -29,17 +29,18 @@ class BookPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = pages.isNotEmpty ? pages[cursor] : '暂无内容';
-    final paragraphs = content.split('\n');
-    final length = paragraphs.length;
-    List<InlineSpan> children = [];
-    for (var i = 0; i < length; i++) {
-      children.add(TextSpan(text: paragraphs[i], style: theme.pageStyle));
-      if (i < length - 1) {
-        final height = (theme.pageStyle.height! - 0.5);
-        final paragraphStyle = theme.pageStyle.copyWith(height: height);
-        children.add(TextSpan(text: '\n\n', style: paragraphStyle));
-      }
+    var span = const TextSpan(text: '暂无内容');
+    if (pages.isNotEmpty) {
+      span = pages[cursor];
+    }
+    Widget child = const Center(child: CircularProgressIndicator.adaptive());
+    if (!loading) {
+      child = Container(
+        alignment: pages.isEmpty ? Alignment.center : null,
+        padding: theme.pagePadding,
+        // width: double.infinity,
+        child: Text.rich(span, textDirection: theme.textDirection),
+      );
     }
 
     return GestureDetector(
@@ -55,24 +56,12 @@ class BookPage extends StatelessWidget {
             title: title,
             style: theme.headerStyle,
           ),
-          Expanded(
-            child: loading
-                ? const Center(child: CircularProgressIndicator.adaptive())
-                : Container(
-                    alignment: pages.isEmpty ? Alignment.center : null,
-                    padding: theme.pagePadding,
-                    width: double.infinity,
-                    child: Text.rich(
-                      TextSpan(children: children),
-                      textDirection: TextDirection.ltr,
-                    ),
-                  ),
-          ),
+          Expanded(child: child),
           BookPageFooter(
             cursor: cursor,
+            length: pages.length,
             loading: loading,
             padding: theme.footerPadding,
-            pages: pages,
             progress: progress,
             style: theme.footerStyle,
           ),
@@ -144,26 +133,26 @@ class BookPageFooter extends StatelessWidget {
   const BookPageFooter({
     super.key,
     required this.cursor,
+    required this.length,
     required this.loading,
     required this.padding,
-    required this.pages,
     required this.progress,
     required this.style,
   });
 
   final int cursor;
+  final int length;
   final bool loading;
   final EdgeInsets padding;
-  final List<String> pages;
   final double progress;
   final TextStyle style;
 
   @override
   Widget build(BuildContext context) {
     List<Widget> left = [const Text('获取中')];
-    if (!loading && pages.isNotEmpty) {
+    if (!loading && length > 0) {
       left = [
-        Text('${cursor + 1}/${pages.length}'),
+        Text('${cursor + 1}/$length'),
         const SizedBox(width: 16),
         Text('${(progress * 100).toStringAsFixed(1)}%'),
       ];
