@@ -38,7 +38,7 @@ class BookPage extends StatelessWidget {
       child = Container(
         alignment: pages.isEmpty ? Alignment.center : null,
         padding: theme.pagePadding,
-        // width: double.infinity,
+        width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
         child: Text.rich(span, textDirection: theme.textDirection),
       );
     }
@@ -164,7 +164,6 @@ class BookPageFooter extends StatelessWidget {
     return Container(
       color: Colors.transparent,
       padding: padding,
-      width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
       child: DefaultTextStyle.merge(
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

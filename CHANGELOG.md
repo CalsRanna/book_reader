@@ -1,3 +1,7 @@
+## 0.0.11
+
+- fix page width
+
 ## 0.0.10
 
 - fix page width
