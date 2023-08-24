@@ -27,11 +27,11 @@ class ReaderTheme {
     horizontal: 16,
   );
   TextStyle pageStyle = const TextStyle(
-    inherit: false,
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 40 / 18,
+    height: 2,
     letterSpacing: 0.2,
+    wordSpacing: 0,
   );
   TextDirection textDirection = TextDirection.ltr;
 

@@ -1,3 +1,7 @@
+## 0.0.12
+
+- fix paginate results not fit screen size sometimes
+
 ## 0.0.11
 
 - fix page width

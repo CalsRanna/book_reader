@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 class Paginator {
   final Size size;
   final ReaderTheme theme;
+  final TextPainter _painter;
 
   /// Paginator is a class used to paginate the content into different pages.
   ///
   /// [size] is the available size of the content, and [theme] has some default styles.
-  const Paginator({required this.size, required this.theme});
+  Paginator({required this.size, required this.theme})
+      : _painter = TextPainter();
 
   /// Paginate the content into different pages, each page is a [TextSpan].
   List<TextSpan> paginate(String content) {
-    content = content.split('').join('\u200B'); // 零宽字符填充内容，用于覆盖默认换行逻辑
+    // 零宽字符填充内容，用于覆盖默认换行逻辑，会导致分页时长提高5-6倍
+    // content = content.split('').join('\u200B');
     content = content.split('\n').join('\n\u2003\u2003'); // 填充全角空格，用于首行缩进
     var offset = 0;
     List<TextSpan> pages = [];
@@ -21,7 +24,7 @@ class Paginator {
       var start = offset;
       var end = content.length - 1;
       var middle = ((start + end) / 2).ceil();
-      for (var i = 0; i < 16; i++) {
+      while (end - start > 1) {
         if (_layout(content.substring(offset, middle))) {
           start = middle;
           middle = ((start + end) / 2).ceil();
@@ -30,9 +33,14 @@ class Paginator {
           middle = ((start + end) / 2).ceil();
         }
       }
+      // substring不包含end，所以当需要截取后面所有字符串时，end应设为null
       if (middle == content.length - 1) {
         pages.add(_build(content.substring(offset)));
       } else {
+        // 如果最后一次分页溢出，则减少一个字符，因为计算到后面已经在相邻位置进行截取了。
+        if (!_layout(content.substring(offset, middle))) {
+          middle--;
+        }
         pages.add(_build(content.substring(offset, middle)));
       }
       offset = middle;
@@ -46,13 +54,15 @@ class Paginator {
   bool _layout(String text) {
     final direction = theme.textDirection;
     final span = _build(text);
-    final painter = TextPainter(text: span, textDirection: direction);
-    painter.layout(maxWidth: size.width);
-    return painter.size.height <= size.height;
+    _painter.text = span;
+    _painter.textDirection = direction;
+    _painter.layout(maxWidth: size.width);
+    return _painter.size.height <= size.height;
   }
 
   /// Build a [TextSpan] from the given text. Which will split into multi paragraphs.
   TextSpan _build(String text) {
+    // 通过换行实现段间距，会导致分页时长提高1倍左右，会有较明显的卡顿感
     // final paragraphs = text.split('\n');
     // final length = paragraphs.length;
     // List<InlineSpan> children = [];
