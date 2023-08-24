@@ -1,3 +1,7 @@
+## 0.0.13
+
+- add source switcher callback
+
 ## 0.0.12
 
 - fix paginate results not fit screen size sometimes

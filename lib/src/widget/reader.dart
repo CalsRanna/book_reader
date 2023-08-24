@@ -34,6 +34,7 @@ class BookReader extends StatefulWidget {
     this.onRefresh,
     this.onProgressChanged,
     this.onDarkModePressed,
+    this.onSourceSwitcherPressed,
   });
 
   /// Author of book, can be null if you weren't sure about it.
@@ -102,6 +103,8 @@ class BookReader extends StatefulWidget {
   final void Function(String)? onMessage;
   final Future<String> Function(int)? onRefresh;
   final void Function(int)? onProgressChanged;
+
+  final void Function()? onSourceSwitcherPressed;
 
   @override
   State<BookReader> createState() => _BookReaderState();
@@ -190,6 +193,7 @@ class _BookReaderState extends State<BookReader>
               onProgressChangedEnd: handleSliderChangeEnd,
               onRefresh: handleRefresh,
               onDarkModePressed: widget.onDarkModePressed,
+              onSourceSwitcherPressed: widget.onSourceSwitcherPressed,
             )
         ],
       ),

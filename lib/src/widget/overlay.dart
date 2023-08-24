@@ -4,6 +4,7 @@ class BookOverlay extends StatefulWidget {
   const BookOverlay({
     super.key,
     required this.darkMode,
+    this.progress = 0,
     required this.showCache,
     this.onOverlayRemoved,
     this.onPop,
@@ -14,7 +15,7 @@ class BookOverlay extends StatefulWidget {
     this.onProgressChangedEnd,
     this.onCatalogueNavigated,
     this.onDarkModePressed,
-    this.progress = 0,
+    this.onSourceSwitcherPressed,
   });
 
   final bool darkMode;
@@ -29,6 +30,7 @@ class BookOverlay extends StatefulWidget {
   final void Function(double)? onProgressChangedEnd;
   final void Function()? onCatalogueNavigated;
   final void Function()? onDarkModePressed;
+  final void Function()? onSourceSwitcherPressed;
 
   @override
   State<BookOverlay> createState() => _BookOverlayState();
@@ -51,6 +53,7 @@ class _BookOverlayState extends State<BookOverlay> {
           onProgressChangedEnd: widget.onProgressChangedEnd,
           onCatalogueNavigated: widget.onCatalogueNavigated,
           onDarkModePressed: widget.onDarkModePressed,
+          onSourceSwitcherPressed: widget.onSourceSwitcherPressed,
         ),
       ],
     );
@@ -165,6 +168,7 @@ class BookPageOverlayBottomBar extends StatelessWidget {
     this.onCatalogueNavigated,
     this.progress = 0,
     this.onDarkModePressed,
+    this.onSourceSwitcherPressed,
   });
 
   final bool darkMode;
@@ -175,6 +179,7 @@ class BookPageOverlayBottomBar extends StatelessWidget {
   final void Function(double)? onProgressChangedEnd;
   final void Function()? onCatalogueNavigated;
   final void Function()? onDarkModePressed;
+  final void Function()? onSourceSwitcherPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -216,9 +221,9 @@ class BookPageOverlayBottomBar extends StatelessWidget {
                   ],
                 ),
               ),
-              const TextButton(
-                onPressed: null,
-                child: Column(
+              TextButton(
+                onPressed: onSourceSwitcherPressed,
+                child: const Column(
                   children: [
                     Icon(Icons.change_circle_outlined),
                     Text('换源'),
