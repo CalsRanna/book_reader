@@ -1,3 +1,7 @@
+## 0.0.14
+
+- update page alignment
+
 ## 0.0.13
 
 - add source switcher callback

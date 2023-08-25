@@ -35,8 +35,16 @@ class BookPage extends StatelessWidget {
     }
     Widget child = const Center(child: CircularProgressIndicator.adaptive());
     if (!loading) {
+      var alignment = Alignment.center;
+      if (pages.isNotEmpty) {
+        if (cursor != pages.length - 1) {
+          alignment = Alignment.centerLeft;
+        } else {
+          alignment = Alignment.topLeft;
+        }
+      }
       child = Container(
-        alignment: pages.isEmpty ? Alignment.center : null,
+        alignment: alignment,
         padding: theme.pagePadding,
         width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
         child: Text.rich(span, textDirection: theme.textDirection),
@@ -44,6 +52,7 @@ class BookPage extends StatelessWidget {
     }
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapUp: (details) => handleTap(context, details),
       onHorizontalDragEnd: (details) => handleEnd(context, details),
       child: Column(
