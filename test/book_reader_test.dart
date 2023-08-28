@@ -7,7 +7,7 @@ void main() {
   test('adds one to input values', () {
     // final calculator = Calculator();
     final reader = BookReader(
-      author: 'authro',
+      author: 'author',
       cover: Image.network('cover'),
       future: (index) => Future.value('$index'),
       name: 'name',

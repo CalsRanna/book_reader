@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class BookOverlay extends StatefulWidget {
   const BookOverlay({
     super.key,
+    required this.cover,
+    required this.author,
+    required this.name,
     required this.darkMode,
     this.progress = 0,
     required this.showCache,
@@ -17,8 +20,12 @@ class BookOverlay extends StatefulWidget {
     this.onDarkModePressed,
     this.onSourceSwitcherPressed,
     this.onCache,
+    this.onDetailPressed,
   });
 
+  final String author;
+  final Widget cover;
+  final String name;
   final bool darkMode;
   final bool showCache;
   final double progress;
@@ -33,6 +40,7 @@ class BookOverlay extends StatefulWidget {
   final void Function()? onDarkModePressed;
   final void Function()? onSourceSwitcherPressed;
   final void Function(int)? onCache;
+  final void Function()? onDetailPressed;
 
   @override
   State<BookOverlay> createState() => _BookOverlayState();
@@ -44,10 +52,14 @@ class _BookOverlayState extends State<BookOverlay> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        BookPageOverlayAppBar(
-          onTap: widget.onPop,
+        _BookPageOverlayAppBar(
+          author: widget.author,
+          cover: widget.cover,
+          name: widget.name,
+          onPop: widget.onPop,
           onRefresh: widget.onRefresh,
           onCachePressed: handleCachePressed,
+          onDetailPressed: widget.onDetailPressed,
         ),
         BookReaderOverlayMask(onTap: widget.onOverlayRemoved),
         if (showCache) BookPageOverlayCache(onCache: handleCache),
@@ -80,17 +92,31 @@ class _BookOverlayState extends State<BookOverlay> {
   }
 }
 
-class BookPageOverlayAppBar extends StatelessWidget {
-  const BookPageOverlayAppBar({
-    super.key,
-    this.onTap,
-    this.onRefresh,
+class _BookPageOverlayAppBar extends StatefulWidget {
+  const _BookPageOverlayAppBar({
+    required this.author,
+    required this.cover,
+    required this.name,
     this.onCachePressed,
+    this.onPop,
+    this.onRefresh,
+    this.onDetailPressed,
   });
 
-  final void Function()? onTap;
+  final String author;
+  final Widget cover;
+  final String name;
+  final void Function()? onPop;
   final void Function()? onRefresh;
   final void Function()? onCachePressed;
+  final void Function()? onDetailPressed;
+
+  @override
+  State<_BookPageOverlayAppBar> createState() => _BookPageOverlayAppBarState();
+}
+
+class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
+  OverlayEntry? entry;
 
   @override
   Widget build(BuildContext context) {
@@ -102,49 +128,149 @@ class BookPageOverlayAppBar extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                onPressed: onTap,
+                onPressed: widget.onPop,
                 icon: const Icon(Icons.arrow_back_ios),
               ),
               const Expanded(child: SizedBox()),
               TextButton(
-                onPressed: onCachePressed,
+                onPressed: widget.onCachePressed,
                 child: const Row(
                   children: [Icon(Icons.file_download_outlined), Text('缓存')],
                 ),
               ),
-              TextButton(
-                onPressed: onRefresh,
-                child: const Row(
-                  children: [Icon(Icons.refresh_outlined), Text('刷新')],
-                ),
+              IconButton(
+                icon: const Icon(Icons.more_horiz_outlined),
+                onPressed: () => handlePressed(context),
               ),
-              // IconButton(
-              //   icon: const Icon(Icons.more_horiz_outlined),
-              //   onPressed: () {},
-              // ),
             ],
           ),
         ],
       ),
     );
   }
+
+  void handlePressed(BuildContext context) {
+    final overlay = Overlay.of(context);
+    if (entry == null) {
+      entry = OverlayEntry(builder: (context) {
+        return Positioned.fill(
+          child: Container(
+            color: Colors.transparent,
+            child: Column(
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: handleTap,
+                  child: SizedBox(
+                    height: MediaQuery.of(context).padding.top + 48,
+                    width: double.infinity,
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          widget.cover,
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.name,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              Text(
+                                widget.author,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              )
+                            ],
+                          ),
+                          const Spacer(),
+                          OutlinedButton(
+                            onPressed: handleDetailPressed,
+                            child: const Text('详情'),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Divider(height: 1),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: handleRefresh,
+                        child: const Column(
+                          children: [
+                            Icon(Icons.refresh_outlined),
+                            Text('刷新'),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: handleTap,
+                    child: const SizedBox(
+                      height: double.infinity,
+                      width: double.infinity,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      });
+      overlay.insert(entry!);
+    } else {
+      entry?.remove();
+      entry = null;
+    }
+  }
+
+  void handleTap() {
+    if (entry != null) {
+      entry?.remove();
+      entry = null;
+    }
+  }
+
+  void handleDetailPressed() {
+    if (entry != null) {
+      entry?.remove();
+      entry = null;
+    }
+    widget.onDetailPressed?.call();
+  }
+
+  void handleRefresh() {
+    if (entry != null) {
+      entry?.remove();
+      entry = null;
+    }
+    widget.onRefresh?.call();
+  }
 }
 
-class BookReaderOverlayMask extends StatefulWidget {
+class BookReaderOverlayMask extends StatelessWidget {
   const BookReaderOverlayMask({super.key, this.onTap});
 
   final void Function()? onTap;
 
   @override
-  State<BookReaderOverlayMask> createState() => _BookReaderOverlayMaskState();
-}
-
-class _BookReaderOverlayMaskState extends State<BookReaderOverlayMask> {
-  @override
   Widget build(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: onTap,
         child: Container(color: Colors.transparent),
       ),
     );

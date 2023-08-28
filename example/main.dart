@@ -26,6 +26,8 @@ class BookReaderDemo extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => BookReader(
+          author: 'author',
+          cover: Image.network('cover image src'),
           future: fetchChapter,
           name: 'Book Reader Demo',
         ),

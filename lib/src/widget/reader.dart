@@ -13,8 +13,8 @@ import 'package:flutter/services.dart';
 class BookReader extends StatefulWidget {
   const BookReader({
     super.key,
-    this.author,
-    this.cover,
+    required this.author,
+    required this.cover,
     this.cursor,
     this.darkMode = false,
     this.duration,
@@ -35,12 +35,13 @@ class BookReader extends StatefulWidget {
     this.onProgressChanged,
     this.onDarkModePressed,
     this.onSourceSwitcherPressed,
+    this.onDetailPressed,
   });
 
   /// Author of book, can be null if you weren't sure about it.
-  final String? author;
+  final String author;
 
-  final Image? cover;
+  final Widget cover;
 
   /// The value of [cursor] is the index of pages paginated with style
   /// given. If it is null then the default value is 0.
@@ -105,6 +106,8 @@ class BookReader extends StatefulWidget {
   final void Function(int)? onProgressChanged;
 
   final void Function()? onSourceSwitcherPressed;
+
+  final void Function()? onDetailPressed;
 
   @override
   State<BookReader> createState() => _BookReaderState();
@@ -181,6 +184,9 @@ class _BookReaderState extends State<BookReader>
           ),
           if (showOverlay)
             BookOverlay(
+              author: widget.author,
+              cover: widget.cover,
+              name: widget.name,
               darkMode: widget.darkMode,
               progress: progress,
               showCache: false,
@@ -195,6 +201,7 @@ class _BookReaderState extends State<BookReader>
               onDarkModePressed: widget.onDarkModePressed,
               onSourceSwitcherPressed: widget.onSourceSwitcherPressed,
               onCache: handleCached,
+              onDetailPressed: widget.onDetailPressed,
             )
         ],
       ),
@@ -359,7 +366,6 @@ class _BookReaderState extends State<BookReader>
   }
 
   void handlePop() {
-    Navigator.of(context).pop();
     widget.onPop?.call(index, cursor);
   }
 

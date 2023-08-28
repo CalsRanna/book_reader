@@ -2,6 +2,7 @@
 
 - fill `\n` to the last page
 - support cache content
+- add detail callback function
 
 ## 0.0.14
 
