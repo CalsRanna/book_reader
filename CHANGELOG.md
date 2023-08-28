@@ -1,3 +1,7 @@
+## 0.0.15
+
+- fill `\n` to the last page
+
 ## 0.0.14
 
 - update page alignment

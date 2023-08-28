@@ -37,11 +37,7 @@ class BookPage extends StatelessWidget {
     if (!loading) {
       var alignment = Alignment.center;
       if (pages.isNotEmpty) {
-        if (cursor != pages.length - 1) {
-          alignment = Alignment.centerLeft;
-        } else {
-          alignment = Alignment.topLeft;
-        }
+        alignment = Alignment.centerLeft;
       }
       child = Container(
         alignment: alignment,

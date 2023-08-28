@@ -17,7 +17,8 @@ class Paginator {
   List<TextSpan> paginate(String content) {
     // 零宽字符填充内容，用于覆盖默认换行逻辑，会导致分页时长提高5-6倍
     // content = content.split('').join('\u200B');
-    content = content.split('\n').join('\n\u2003\u2003'); // 填充全角空格，用于首行缩进
+    // 填充全角空格，用于首行缩进
+    content = content.split('\n').join('\n\u2003\u2003');
     var offset = 0;
     List<TextSpan> pages = [];
     while (offset < content.length - 1) {
@@ -25,6 +26,11 @@ class Paginator {
       var end = content.length - 1;
       var middle = ((start + end) / 2).ceil();
       while (end - start > 1) {
+        var page = content.substring(offset, middle);
+        // 如果新的一页以换行符开始，删除这个换行符
+        if (page.startsWith('\n')) {
+          offset += 1;
+        }
         if (_layout(content.substring(offset, middle))) {
           start = middle;
           middle = ((start + end) / 2).ceil();
@@ -33,9 +39,14 @@ class Paginator {
           middle = ((start + end) / 2).ceil();
         }
       }
-      // substring不包含end，所以当需要截取后面所有字符串时，end应设为null
       if (middle == content.length - 1) {
-        pages.add(_build(content.substring(offset)));
+        // substring不包含end，所以当需要截取后面所有字符串时，end应设为null
+        var page = content.substring(offset);
+        // 最后一页填充换行符以撑满整个屏幕
+        while (_layout('$page\n')) {
+          page += '\n';
+        }
+        pages.add(_build(page));
       } else {
         // 如果最后一次分页溢出，则减少一个字符，因为计算到后面已经在相邻位置进行截取了。
         if (!_layout(content.substring(offset, middle))) {
