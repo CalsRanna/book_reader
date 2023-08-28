@@ -16,6 +16,7 @@ class BookOverlay extends StatefulWidget {
     this.onCatalogueNavigated,
     this.onDarkModePressed,
     this.onSourceSwitcherPressed,
+    this.onCache,
   });
 
   final bool darkMode;
@@ -31,19 +32,25 @@ class BookOverlay extends StatefulWidget {
   final void Function()? onCatalogueNavigated;
   final void Function()? onDarkModePressed;
   final void Function()? onSourceSwitcherPressed;
+  final void Function(int)? onCache;
 
   @override
   State<BookOverlay> createState() => _BookOverlayState();
 }
 
 class _BookOverlayState extends State<BookOverlay> {
+  bool showCache = false;
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        BookPageOverlayAppBar(onTap: widget.onPop, onRefresh: widget.onRefresh),
+        BookPageOverlayAppBar(
+          onTap: widget.onPop,
+          onRefresh: widget.onRefresh,
+          onCachePressed: handleCachePressed,
+        ),
         BookReaderOverlayMask(onTap: widget.onOverlayRemoved),
-        if (widget.showCache) const BookPageOverlayCache(),
+        if (showCache) BookPageOverlayCache(onCache: handleCache),
         BookPageOverlayBottomBar(
           darkMode: widget.darkMode,
           progress: widget.progress,
@@ -58,13 +65,32 @@ class _BookOverlayState extends State<BookOverlay> {
       ],
     );
   }
+
+  void handleCachePressed() {
+    setState(() {
+      showCache = !showCache;
+    });
+  }
+
+  void handleCache(int amount) {
+    setState(() {
+      showCache = false;
+    });
+    widget.onCache?.call(amount);
+  }
 }
 
 class BookPageOverlayAppBar extends StatelessWidget {
-  const BookPageOverlayAppBar({super.key, this.onTap, this.onRefresh});
+  const BookPageOverlayAppBar({
+    super.key,
+    this.onTap,
+    this.onRefresh,
+    this.onCachePressed,
+  });
 
   final void Function()? onTap;
   final void Function()? onRefresh;
+  final void Function()? onCachePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +106,12 @@ class BookPageOverlayAppBar extends StatelessWidget {
                 icon: const Icon(Icons.arrow_back_ios),
               ),
               const Expanded(child: SizedBox()),
+              TextButton(
+                onPressed: onCachePressed,
+                child: const Row(
+                  children: [Icon(Icons.file_download_outlined), Text('缓存')],
+                ),
+              ),
               TextButton(
                 onPressed: onRefresh,
                 child: const Row(
@@ -120,7 +152,9 @@ class _BookReaderOverlayMaskState extends State<BookReaderOverlayMask> {
 }
 
 class BookPageOverlayCache extends StatelessWidget {
-  const BookPageOverlayCache({super.key});
+  const BookPageOverlayCache({super.key, this.onCache});
+
+  final void Function(int)? onCache;
 
   @override
   Widget build(BuildContext context) {
@@ -130,22 +164,22 @@ class BookPageOverlayCache extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: ElevatedButton(
-              onPressed: () => handleCached(context, 50),
+            child: OutlinedButton(
+              onPressed: () => handleCached(50),
               child: const Text('50章'),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: ElevatedButton(
-              onPressed: () => handleCached(context, 100),
+            child: OutlinedButton(
+              onPressed: () => handleCached(100),
               child: const Text('100章'),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: ElevatedButton(
-              onPressed: () => handleCached(context, 0),
+            child: OutlinedButton(
+              onPressed: () => handleCached(0),
               child: const Text('全部'),
             ),
           )
@@ -154,7 +188,9 @@ class BookPageOverlayCache extends StatelessWidget {
     );
   }
 
-  void handleCached(BuildContext context, int amount) {}
+  void handleCached(int amount) {
+    onCache?.call(amount);
+  }
 }
 
 class BookPageOverlayBottomBar extends StatelessWidget {

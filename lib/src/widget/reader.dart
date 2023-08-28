@@ -194,6 +194,7 @@ class _BookReaderState extends State<BookReader>
               onRefresh: handleRefresh,
               onDarkModePressed: widget.onDarkModePressed,
               onSourceSwitcherPressed: widget.onSourceSwitcherPressed,
+              onCache: handleCached,
             )
         ],
       ),

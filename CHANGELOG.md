@@ -1,6 +1,7 @@
 ## 0.0.15
 
 - fill `\n` to the last page
+- support cache content
 
 ## 0.0.14
 
