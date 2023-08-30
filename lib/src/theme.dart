@@ -4,7 +4,7 @@ class ReaderTheme {
   Color backgroundColor = Colors.white;
   String backgroundImage = '';
   EdgeInsets footerPadding = const EdgeInsets.only(
-    bottom: 24,
+    bottom: 34,
     left: 16,
     right: 16,
     top: 4,
@@ -17,7 +17,7 @@ class ReaderTheme {
     bottom: 4,
     left: 16,
     right: 16,
-    top: 43,
+    top: 47,
   );
   TextStyle headerStyle = const TextStyle(
     fontSize: 10,
@@ -29,7 +29,7 @@ class ReaderTheme {
   TextStyle pageStyle = const TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 2,
+    height: 2.2222,
     letterSpacing: 0.2,
     wordSpacing: 0,
   );

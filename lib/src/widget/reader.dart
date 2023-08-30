@@ -11,6 +11,8 @@ import 'package:flutter/services.dart';
 /// paginate and can be customized by you own choice since we provide
 /// many params to do that.
 class BookReader extends StatefulWidget {
+  /// [author], [cover], [name] should not be null.
+  /// [future] is used to fetch content from internet or some other way.
   const BookReader({
     super.key,
     required this.author,
@@ -26,27 +28,29 @@ class BookReader extends StatefulWidget {
     this.total,
     this.onBookPressed,
     this.onCached,
-    this.onCatalogueNavigated,
+    this.onCataloguePressed,
     this.onChapterChanged,
     this.onPop,
-    this.onSettingNavigated,
+    this.onSettingPressed,
     this.onMessage,
     this.onRefresh,
     this.onProgressChanged,
     this.onDarkModePressed,
-    this.onSourceSwitcherPressed,
+    this.onSourcePressed,
     this.onDetailPressed,
   });
 
   /// Author of book, can be null if you weren't sure about it.
   final String author;
 
+  /// Basically a cover of book, should be an image.
   final Widget cover;
 
   /// The value of [cursor] is the index of pages paginated with style
   /// given. If it is null then the default value is 0.
   final int? cursor;
 
+  /// Current dark mode of app.
   final bool darkMode;
 
   /// Duration for animation, include app and bottom bar slide transition,
@@ -85,7 +89,7 @@ class BookReader extends StatefulWidget {
   /// If this function is null then the button of catalogue should not be
   /// available. And this is used to navigate to the new page to display
   /// custom catalogue page.
-  final void Function()? onCatalogueNavigated;
+  final void Function()? onCataloguePressed;
 
   /// This function will be called when change chapter. And use [future] to
   /// fetch data instead of here.
@@ -97,7 +101,7 @@ class BookReader extends StatefulWidget {
   final void Function(int index, int cursor)? onPop;
 
   /// This is used to navigate to the new page to display settings.
-  final void Function()? onSettingNavigated;
+  final void Function()? onSettingPressed;
 
   final void Function()? onDarkModePressed;
 
@@ -105,7 +109,7 @@ class BookReader extends StatefulWidget {
   final Future<String> Function(int)? onRefresh;
   final void Function(int)? onProgressChanged;
 
-  final void Function()? onSourceSwitcherPressed;
+  final void Function()? onSourcePressed;
 
   final void Function()? onDetailPressed;
 
@@ -127,22 +131,62 @@ class _BookReaderState extends State<BookReader>
   bool showOverlay = false;
   late ReaderTheme theme;
   late int total;
+  Size size = Size.zero;
 
   @override
-  void initState() {
-    super.initState();
-    cursor = widget.cursor ?? 0;
-    duration = widget.duration ?? const Duration(milliseconds: 200);
-    index = widget.index ?? 0;
-    progress = 0;
-    theme = widget.theme ?? ReaderTheme();
-    total = widget.total ?? 1;
-    controller = AnimationController(duration: duration, vsync: this);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          if (theme.backgroundImage.isEmpty)
+            Container(color: theme.backgroundColor),
+          if (theme.backgroundImage.isNotEmpty)
+            Image.asset(
+              theme.backgroundImage,
+              fit: BoxFit.cover,
+              height: double.infinity,
+              width: double.infinity,
+            ),
+          BookPage(
+            cursor: min(cursor, pages.length - 1),
+            loading: isLoading,
+            name: widget.name,
+            pages: pages,
+            progress: progress,
+            theme: theme,
+            title: widget.title ?? widget.name,
+            onOverlayInserted: handleOverlayInserted,
+            onPageDown: handlePageDown,
+            onPageUp: handlePageUp,
+          ),
+          if (showOverlay)
+            BookOverlay(
+              author: widget.author,
+              cover: widget.cover,
+              darkMode: widget.darkMode,
+              name: widget.name,
+              progress: progress,
+              onCache: handleCached,
+              onCataloguePressed: handleCataloguePressed,
+              onChapterDown: handleChapterDown,
+              onChapterUp: handleChapterUp,
+              onDarkModePressed: widget.onDarkModePressed,
+              onDetailPressed: widget.onDetailPressed,
+              onOverlayRemoved: handleOverlayRemoved,
+              onPop: handlePop,
+              onRefresh: handleRefresh,
+              onSliderChanged: handleSliderChanged,
+              onSliderChangedEnd: handleSliderChangeEnd,
+              onSourcePressed: widget.onSourcePressed,
+            )
+        ],
+      ),
+    );
   }
 
   @override
   void didChangeDependencies() {
+    size = calculateSize();
     fetchContent();
     calculateProgress();
     super.didChangeDependencies();
@@ -165,53 +209,25 @@ class _BookReaderState extends State<BookReader>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(color: theme.backgroundColor),
-          BookPage(
-            cursor: min(cursor, pages.length - 1),
-            loading: isLoading,
-            name: widget.name,
-            pages: pages,
-            progress: progress,
-            theme: theme,
-            title: widget.title ?? widget.name,
-            onOverlayInserted: handleOverlayInserted,
-            onPageDown: handlePageDown,
-            onPageUp: handlePageUp,
-          ),
-          if (showOverlay)
-            BookOverlay(
-              author: widget.author,
-              cover: widget.cover,
-              name: widget.name,
-              darkMode: widget.darkMode,
-              progress: progress,
-              showCache: false,
-              onCatalogueNavigated: handleCatalogueNavigated,
-              onChapterDown: handleChapterDown,
-              onChapterUp: handleChapterUp,
-              onOverlayRemoved: handleOverlayRemoved,
-              onPop: handlePop,
-              onProgressChanged: handleSliderChanged,
-              onProgressChangedEnd: handleSliderChangeEnd,
-              onRefresh: handleRefresh,
-              onDarkModePressed: widget.onDarkModePressed,
-              onSourceSwitcherPressed: widget.onSourceSwitcherPressed,
-              onCache: handleCached,
-              onDetailPressed: widget.onDetailPressed,
-            )
-        ],
-      ),
-    );
+  void initState() {
+    super.initState();
+    cursor = widget.cursor ?? 0;
+    duration = widget.duration ?? const Duration(milliseconds: 200);
+    index = widget.index ?? 0;
+    progress = 0;
+    theme = widget.theme ?? ReaderTheme();
+    total = widget.total ?? 1;
+    controller = AnimationController(duration: duration, vsync: this);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
-  Future<void> fetchContent() async {
+  void calculateProgress() {
     setState(() {
-      isLoading = true;
+      progress = (index + 1) / total;
     });
+  }
+
+  Size calculateSize() {
     final mediaQuery = MediaQuery.of(context);
     final globalSize = mediaQuery.size;
     final height = globalSize.height -
@@ -221,70 +237,33 @@ class _BookReaderState extends State<BookReader>
         theme.footerPadding.vertical -
         theme.footerStyle.fontSize! * theme.footerStyle.height!;
     final width = globalSize.width - theme.pagePadding.horizontal;
+    return Size(width, height);
+  }
+
+  Future<void> fetchContent() async {
+    setState(() {
+      isLoading = true;
+    });
     var content = await widget.future(index);
-    final paginator = Paginator(size: Size(width, height), theme: theme);
+    final paginator = Paginator(size: size, theme: theme);
     setState(() {
       pages = paginator.paginate(content);
       isLoading = false;
     });
   }
 
-  void calculateProgress() {
+  void handleCached(int amount) {
     setState(() {
-      progress = (index + 1) / total;
+      showCache = false;
+      showOverlay = false;
     });
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    widget.onCached?.call(amount);
+    widget.onMessage?.call('缓存开始');
   }
 
-  /// This function is used to show SystemUiOverlay when slide to return
-  /// previous page.
-  Future<bool> handleWillPop() {
-    setState(() {
-      showOverlay = true;
-    });
-    widget.onPop?.call(index, cursor);
-    return Future.value(true);
-  }
-
-  void handlePageDown() async {
-    final length = pages.length;
-    if (cursor + 1 < length) {
-      setState(() {
-        cursor = cursor + 1;
-      });
-    } else if (cursor + 1 >= length && index + 1 < total) {
-      setState(() {
-        cursor = 0;
-        index = index + 1;
-      });
-      widget.onChapterChanged?.call(index);
-      await fetchContent();
-      calculateProgress();
-    } else {
-      widget.onMessage?.call('已经是最后一页');
-    }
-    widget.onProgressChanged?.call(cursor);
-  }
-
-  void handlePageUp() async {
-    if (cursor > 0) {
-      setState(() {
-        cursor = cursor - 1;
-      });
-    } else if (cursor == 0 && index > 0) {
-      setState(() {
-        index = index - 1;
-      });
-      widget.onChapterChanged?.call(index);
-      await fetchContent();
-      calculateProgress();
-      final length = pages.length;
-      setState(() {
-        cursor = length - 1;
-      });
-    } else {
-      widget.onMessage?.call('已经是第一页');
-    }
-    widget.onProgressChanged?.call(cursor);
+  void handleCataloguePressed() {
+    widget.onCataloguePressed?.call();
   }
 
   void handleChapterDown() {
@@ -335,6 +314,73 @@ class _BookReaderState extends State<BookReader>
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
+  void handlePageDown() async {
+    final length = pages.length;
+    if (cursor + 1 < length) {
+      setState(() {
+        cursor = cursor + 1;
+      });
+    } else if (cursor + 1 >= length && index + 1 < total) {
+      setState(() {
+        cursor = 0;
+        index = index + 1;
+      });
+      widget.onChapterChanged?.call(index);
+      await fetchContent();
+      calculateProgress();
+    } else {
+      widget.onMessage?.call('已经是最后一页');
+    }
+    widget.onProgressChanged?.call(cursor);
+  }
+
+  void handlePageUp() async {
+    if (cursor > 0) {
+      setState(() {
+        cursor = cursor - 1;
+      });
+    } else if (cursor == 0 && index > 0) {
+      setState(() {
+        index = index - 1;
+      });
+      widget.onChapterChanged?.call(index);
+      await fetchContent();
+      calculateProgress();
+      final length = pages.length;
+      setState(() {
+        cursor = length - 1;
+      });
+    } else {
+      widget.onMessage?.call('已经是第一页');
+    }
+    widget.onProgressChanged?.call(cursor);
+  }
+
+  void handlePop() {
+    widget.onPop?.call(index, cursor);
+  }
+
+  void handleRefresh() async {
+    if (widget.onRefresh != null) {
+      setState(() {
+        showCache = false;
+        showOverlay = false;
+        isLoading = true;
+      });
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+      var content = await widget.onRefresh!.call(index);
+      final paginator = Paginator(size: size, theme: theme);
+      setState(() {
+        pages = paginator.paginate(content);
+      });
+      calculateProgress();
+      setState(() {
+        cursor = 0;
+        isLoading = false;
+      });
+    }
+  }
+
   void handleSliderChanged(double value) {
     setState(() {
       progress = value;
@@ -363,57 +409,5 @@ class _BookReaderState extends State<BookReader>
     calculateProgress();
     widget.onChapterChanged?.call(index);
     widget.onProgressChanged?.call(cursor);
-  }
-
-  void handlePop() {
-    widget.onPop?.call(index, cursor);
-  }
-
-  void handleCacheNavigated() {
-    setState(() {
-      showCache = true;
-    });
-  }
-
-  void handleCatalogueNavigated() {
-    widget.onCatalogueNavigated?.call();
-  }
-
-  void handleCached(int amount) {
-    setState(() {
-      showCache = false;
-      showOverlay = false;
-    });
-    widget.onCached?.call(amount);
-    widget.onMessage?.call('缓存开始');
-  }
-
-  void handleRefresh() async {
-    if (widget.onRefresh != null) {
-      setState(() {
-        showCache = false;
-        showOverlay = false;
-        isLoading = true;
-      });
-      final mediaQuery = MediaQuery.of(context);
-      final globalSize = mediaQuery.size;
-      final height = globalSize.height -
-          theme.headerPadding.vertical -
-          theme.headerStyle.fontSize! * theme.headerStyle.height! -
-          theme.pagePadding.vertical -
-          theme.footerPadding.vertical -
-          theme.footerStyle.fontSize! * theme.footerStyle.height!;
-      final width = globalSize.width - theme.pagePadding.horizontal;
-      var content = await widget.onRefresh!.call(index);
-      final paginator = Paginator(size: Size(width, height), theme: theme);
-      setState(() {
-        pages = paginator.paginate(content);
-        isLoading = false;
-      });
-      calculateProgress();
-      setState(() {
-        cursor = 0;
-      });
-    }
   }
 }

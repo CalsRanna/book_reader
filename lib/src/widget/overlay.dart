@@ -3,44 +3,42 @@ import 'package:flutter/material.dart';
 class BookOverlay extends StatefulWidget {
   const BookOverlay({
     super.key,
-    required this.cover,
     required this.author,
-    required this.name,
+    required this.cover,
     required this.darkMode,
+    required this.name,
     this.progress = 0,
-    required this.showCache,
+    this.onCache,
+    this.onCataloguePressed,
+    this.onChapterDown,
+    this.onChapterUp,
+    this.onDarkModePressed,
+    this.onDetailPressed,
     this.onOverlayRemoved,
     this.onPop,
     this.onRefresh,
-    this.onChapterDown,
-    this.onChapterUp,
-    this.onProgressChanged,
-    this.onProgressChangedEnd,
-    this.onCatalogueNavigated,
-    this.onDarkModePressed,
-    this.onSourceSwitcherPressed,
-    this.onCache,
-    this.onDetailPressed,
+    this.onSliderChanged,
+    this.onSliderChangedEnd,
+    this.onSourcePressed,
   });
 
   final String author;
   final Widget cover;
-  final String name;
   final bool darkMode;
-  final bool showCache;
+  final String name;
   final double progress;
-  final void Function()? onPop;
-  final void Function()? onOverlayRemoved;
-  final void Function()? onRefresh;
+  final void Function(int)? onCache;
+  final void Function()? onCataloguePressed;
   final void Function()? onChapterDown;
   final void Function()? onChapterUp;
-  final void Function(double)? onProgressChanged;
-  final void Function(double)? onProgressChangedEnd;
-  final void Function()? onCatalogueNavigated;
   final void Function()? onDarkModePressed;
-  final void Function()? onSourceSwitcherPressed;
-  final void Function(int)? onCache;
   final void Function()? onDetailPressed;
+  final void Function()? onOverlayRemoved;
+  final void Function()? onPop;
+  final void Function()? onRefresh;
+  final void Function(double)? onSliderChanged;
+  final void Function(double)? onSliderChangedEnd;
+  final void Function()? onSourcePressed;
 
   @override
   State<BookOverlay> createState() => _BookOverlayState();
@@ -48,6 +46,7 @@ class BookOverlay extends StatefulWidget {
 
 class _BookOverlayState extends State<BookOverlay> {
   bool showCache = false;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -56,32 +55,26 @@ class _BookOverlayState extends State<BookOverlay> {
           author: widget.author,
           cover: widget.cover,
           name: widget.name,
-          onPop: widget.onPop,
-          onRefresh: widget.onRefresh,
           onCachePressed: handleCachePressed,
           onDetailPressed: widget.onDetailPressed,
+          onPop: widget.onPop,
+          onRefresh: widget.onRefresh,
         ),
-        BookReaderOverlayMask(onTap: widget.onOverlayRemoved),
-        if (showCache) BookPageOverlayCache(onCache: handleCache),
-        BookPageOverlayBottomBar(
+        _BookReaderOverlayMask(onTap: widget.onOverlayRemoved),
+        if (showCache) _BookPageOverlayCache(onCache: handleCache),
+        _BookPageOverlayBottomBar(
           darkMode: widget.darkMode,
           progress: widget.progress,
+          onCataloguePressed: widget.onCataloguePressed,
           onChapterDown: widget.onChapterDown,
           onChapterUp: widget.onChapterUp,
-          onProgressChanged: widget.onProgressChanged,
-          onProgressChangedEnd: widget.onProgressChangedEnd,
-          onCatalogueNavigated: widget.onCatalogueNavigated,
           onDarkModePressed: widget.onDarkModePressed,
-          onSourceSwitcherPressed: widget.onSourceSwitcherPressed,
+          onSliderChanged: widget.onSliderChanged,
+          onSliderChangedEnd: widget.onSliderChangedEnd,
+          onSourcePressed: widget.onSourcePressed,
         ),
       ],
     );
-  }
-
-  void handleCachePressed() {
-    setState(() {
-      showCache = !showCache;
-    });
   }
 
   void handleCache(int amount) {
@@ -89,6 +82,12 @@ class _BookOverlayState extends State<BookOverlay> {
       showCache = false;
     });
     widget.onCache?.call(amount);
+  }
+
+  void handleCachePressed() {
+    setState(() {
+      showCache = !showCache;
+    });
   }
 }
 
@@ -98,18 +97,18 @@ class _BookPageOverlayAppBar extends StatefulWidget {
     required this.cover,
     required this.name,
     this.onCachePressed,
+    this.onDetailPressed,
     this.onPop,
     this.onRefresh,
-    this.onDetailPressed,
   });
 
   final String author;
   final Widget cover;
   final String name;
-  final void Function()? onPop;
-  final void Function()? onRefresh;
   final void Function()? onCachePressed;
   final void Function()? onDetailPressed;
+  final void Function()? onPop;
+  final void Function()? onRefresh;
 
   @override
   State<_BookPageOverlayAppBar> createState() => _BookPageOverlayAppBarState();
@@ -147,6 +146,14 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
         ],
       ),
     );
+  }
+
+  void handleDetailPressed() {
+    if (entry != null) {
+      entry?.remove();
+      entry = null;
+    }
+    widget.onDetailPressed?.call();
   }
 
   void handlePressed(BuildContext context) {
@@ -237,21 +244,6 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
     }
   }
 
-  void handleTap() {
-    if (entry != null) {
-      entry?.remove();
-      entry = null;
-    }
-  }
-
-  void handleDetailPressed() {
-    if (entry != null) {
-      entry?.remove();
-      entry = null;
-    }
-    widget.onDetailPressed?.call();
-  }
-
   void handleRefresh() {
     if (entry != null) {
       entry?.remove();
@@ -259,10 +251,17 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
     }
     widget.onRefresh?.call();
   }
+
+  void handleTap() {
+    if (entry != null) {
+      entry?.remove();
+      entry = null;
+    }
+  }
 }
 
-class BookReaderOverlayMask extends StatelessWidget {
-  const BookReaderOverlayMask({super.key, this.onTap});
+class _BookReaderOverlayMask extends StatelessWidget {
+  const _BookReaderOverlayMask({this.onTap});
 
   final void Function()? onTap;
 
@@ -277,8 +276,8 @@ class BookReaderOverlayMask extends StatelessWidget {
   }
 }
 
-class BookPageOverlayCache extends StatelessWidget {
-  const BookPageOverlayCache({super.key, this.onCache});
+class _BookPageOverlayCache extends StatelessWidget {
+  const _BookPageOverlayCache({this.onCache});
 
   final void Function(int)? onCache;
 
@@ -319,29 +318,28 @@ class BookPageOverlayCache extends StatelessWidget {
   }
 }
 
-class BookPageOverlayBottomBar extends StatelessWidget {
-  const BookPageOverlayBottomBar({
-    super.key,
+class _BookPageOverlayBottomBar extends StatelessWidget {
+  const _BookPageOverlayBottomBar({
     this.darkMode = false,
+    this.progress = 0,
+    this.onCataloguePressed,
     this.onChapterDown,
     this.onChapterUp,
-    this.onProgressChanged,
-    this.onProgressChangedEnd,
-    this.onCatalogueNavigated,
-    this.progress = 0,
     this.onDarkModePressed,
-    this.onSourceSwitcherPressed,
+    this.onSliderChanged,
+    this.onSliderChangedEnd,
+    this.onSourcePressed,
   });
 
   final bool darkMode;
   final double progress;
+  final void Function()? onCataloguePressed;
   final void Function()? onChapterDown;
   final void Function()? onChapterUp;
-  final void Function(double)? onProgressChanged;
-  final void Function(double)? onProgressChangedEnd;
-  final void Function()? onCatalogueNavigated;
   final void Function()? onDarkModePressed;
-  final void Function()? onSourceSwitcherPressed;
+  final void Function(double)? onSliderChanged;
+  final void Function(double)? onSliderChangedEnd;
+  final void Function()? onSourcePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -360,8 +358,8 @@ class BookPageOverlayBottomBar extends StatelessWidget {
                 child: Material(
                   child: Slider.adaptive(
                     value: progress,
-                    onChanged: onProgressChanged,
-                    onChangeEnd: onProgressChangedEnd,
+                    onChanged: onSliderChanged,
+                    onChangeEnd: onSliderChangedEnd,
                   ),
                 ),
               ),
@@ -375,7 +373,7 @@ class BookPageOverlayBottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: onCatalogueNavigated,
+                onPressed: onCataloguePressed,
                 child: const Column(
                   children: [
                     Icon(Icons.list),
@@ -384,7 +382,7 @@ class BookPageOverlayBottomBar extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: onSourceSwitcherPressed,
+                onPressed: onSourcePressed,
                 child: const Column(
                   children: [
                     Icon(Icons.change_circle_outlined),

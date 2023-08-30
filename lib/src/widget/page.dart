@@ -23,9 +23,9 @@ class BookPage extends StatelessWidget {
   final double progress;
   final ReaderTheme theme;
   final String title;
+  final void Function()? onOverlayInserted;
   final void Function()? onPageDown;
   final void Function()? onPageUp;
-  final void Function()? onOverlayInserted;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +33,27 @@ class BookPage extends StatelessWidget {
     if (pages.isNotEmpty) {
       span = pages[cursor];
     }
+    // final appTheme = Theme.of(context);
+    // final colorScheme = appTheme.colorScheme;
+    // final primary = colorScheme.primary;
+    // final onPrimary = colorScheme.onPrimary;
+    // Widget child = Center(
+    //   child: Container(
+    //     decoration: BoxDecoration(
+    //       borderRadius: BorderRadius.circular(8),
+    //       color: primary,
+    //     ),
+    //     padding: const EdgeInsets.all(32),
+    //     child: Column(
+    //       mainAxisSize: MainAxisSize.min,
+    //       children: [
+    //         Text('正在加载', style: theme.pageStyle.copyWith(color: onPrimary)),
+    //         const SizedBox(height: 16),
+    //         CircularProgressIndicator(color: onPrimary),
+    //       ],
+    //     ),
+    //   ),
+    // );
     Widget child = const Center(child: CircularProgressIndicator.adaptive());
     if (!loading) {
       var alignment = Alignment.center;
@@ -49,20 +70,20 @@ class BookPage extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
+      onHorizontalDragEnd: (details) => handleHorizontalDrag(context, details),
       onTapUp: (details) => handleTap(context, details),
-      onHorizontalDragEnd: (details) => handleEnd(context, details),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          BookPageHeader(
+          _BookPageHeader(
             cursor: cursor,
             name: name,
             padding: theme.headerPadding,
-            title: title,
             style: theme.headerStyle,
+            title: title,
           ),
           Expanded(child: child),
-          BookPageFooter(
+          _BookPageFooter(
             cursor: cursor,
             length: pages.length,
             loading: loading,
@@ -75,7 +96,7 @@ class BookPage extends StatelessWidget {
     );
   }
 
-  void handleEnd(BuildContext context, DragEndDetails details) {
+  void handleHorizontalDrag(BuildContext context, DragEndDetails details) {
     if (details.primaryVelocity! < 0) {
       onPageDown?.call();
     } else {
@@ -103,24 +124,27 @@ class BookPage extends StatelessWidget {
   }
 }
 
-class BookPageHeader extends StatelessWidget {
-  const BookPageHeader({
-    super.key,
-    required this.name,
-    required this.title,
+class _BookPageHeader extends StatelessWidget {
+  const _BookPageHeader({
     required this.cursor,
+    required this.name,
     required this.padding,
     required this.style,
+    required this.title,
   });
 
-  final String name;
-  final String title;
-  final TextStyle style;
-  final EdgeInsets padding;
   final int cursor;
+  final String name;
+  final EdgeInsets padding;
+  final TextStyle style;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onBackground = colorScheme.onBackground;
+
     return Container(
       color: Colors.transparent,
       padding: padding,
@@ -128,15 +152,14 @@ class BookPageHeader extends StatelessWidget {
         cursor > 0 ? title : name,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: style,
+        style: style.copyWith(color: onBackground.withOpacity(0.5)),
       ),
     );
   }
 }
 
-class BookPageFooter extends StatelessWidget {
-  const BookPageFooter({
-    super.key,
+class _BookPageFooter extends StatelessWidget {
+  const _BookPageFooter({
     required this.cursor,
     required this.length,
     required this.loading,
@@ -165,6 +188,9 @@ class BookPageFooter extends StatelessWidget {
     final now = DateTime.now();
     final hour = now.hour.toString().padLeft(2, '0');
     final minute = now.minute.toString().padLeft(2, '0');
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onBackground = colorScheme.onBackground;
 
     return Container(
       color: Colors.transparent,
@@ -172,7 +198,7 @@ class BookPageFooter extends StatelessWidget {
       child: DefaultTextStyle.merge(
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: style,
+        style: style.copyWith(color: onBackground.withOpacity(0.5)),
         child: Row(
           children: [
             ...left,

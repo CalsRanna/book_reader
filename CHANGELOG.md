@@ -1,3 +1,7 @@
+## 0.0.16
+
+- update default theme
+
 ## 0.0.15
 
 - fill `\n` to the last page
