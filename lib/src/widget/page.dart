@@ -56,12 +56,7 @@ class BookPage extends StatelessWidget {
     // );
     Widget child = const Center(child: CircularProgressIndicator.adaptive());
     if (!loading) {
-      var alignment = Alignment.center;
-      if (pages.isNotEmpty) {
-        alignment = Alignment.centerLeft;
-      }
       child = Container(
-        alignment: alignment,
         padding: theme.pagePadding,
         width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
         child: Text.rich(span, textDirection: theme.textDirection),

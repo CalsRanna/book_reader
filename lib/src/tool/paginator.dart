@@ -18,7 +18,7 @@ class Paginator {
     // 零宽字符填充内容，用于覆盖默认换行逻辑，会导致分页时长提高5-6倍
     // content = content.split('').join('\u200B');
     // 填充全角空格，用于首行缩进
-    content = content.split('\n').join('\n\u2003\u2003');
+    // content = content.split('\n').join('\n\u2003\u2003');
     var offset = 0;
     List<TextSpan> pages = [];
     while (offset < content.length - 1) {

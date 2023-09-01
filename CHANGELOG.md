@@ -1,3 +1,9 @@
+## 0.0.17
+
+- update default text height to `1.618 + 1.618`
+- remove default alignment of page content
+- remove default behavior of paginate
+
 ## 0.0.16
 
 - update default theme
