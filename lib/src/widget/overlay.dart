@@ -159,6 +159,13 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
   void handlePressed(BuildContext context) {
     final overlay = Overlay.of(context);
     if (entry == null) {
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+      final background = colorScheme.background;
+      final shadow = colorScheme.shadow;
+      final textTheme = theme.textTheme;
+      final bodyMedium = textTheme.bodyMedium;
+      final bodySmall = textTheme.bodySmall;
       entry = OverlayEntry(builder: (context) {
         return Positioned.fill(
           child: Container(
@@ -175,8 +182,15 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
+                    color: background,
                     borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: shadow.withOpacity(0.25),
+                        offset: const Offset(0, 8),
+                        blurRadius: 16,
+                      )
+                    ],
                   ),
                   margin: const EdgeInsets.all(8),
                   padding: const EdgeInsets.all(16),
@@ -190,14 +204,8 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                widget.name,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              Text(
-                                widget.author,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              )
+                              Text(widget.name, style: bodyMedium),
+                              Text(widget.author, style: bodySmall)
                             ],
                           ),
                           const Spacer(),
@@ -356,7 +364,7 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
               ),
               Expanded(
                 child: Material(
-                  child: Slider.adaptive(
+                  child: Slider(
                     value: progress,
                     onChanged: onSliderChanged,
                     onChangeEnd: onSliderChangedEnd,
@@ -401,9 +409,9 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
                   ],
                 ),
               ),
-              const TextButton(
-                onPressed: null,
-                child: Column(
+              TextButton(
+                onPressed: () {},
+                child: const Column(
                   children: [
                     Icon(Icons.settings),
                     Text('设置'),
