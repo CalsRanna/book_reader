@@ -122,6 +122,7 @@ class _BookReaderState extends State<BookReader>
   late AnimationController controller;
   late int cursor;
   late Duration duration;
+  String? error;
   bool hasError = false;
   late int index;
   bool isLoading = true;
@@ -149,6 +150,7 @@ class _BookReaderState extends State<BookReader>
             ),
           BookPage(
             cursor: min(cursor, pages.length - 1),
+            error: error,
             loading: isLoading,
             name: widget.name,
             pages: pages,
@@ -158,6 +160,7 @@ class _BookReaderState extends State<BookReader>
             onOverlayInserted: handleOverlayInserted,
             onPageDown: handlePageDown,
             onPageUp: handlePageUp,
+            onRefresh: handleRefresh,
           ),
           if (showOverlay)
             BookOverlay(
@@ -244,12 +247,21 @@ class _BookReaderState extends State<BookReader>
     setState(() {
       isLoading = true;
     });
-    var content = await widget.future(index);
-    final paginator = Paginator(size: size, theme: theme);
-    setState(() {
-      pages = paginator.paginate(content);
-      isLoading = false;
-    });
+    try {
+      var content = await widget.future(index);
+      final paginator = Paginator(size: size, theme: theme);
+      setState(() {
+        error = null;
+        pages = paginator.paginate(content);
+        isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        this.error = '加载失败';
+        pages = [];
+        isLoading = false;
+      });
+    }
   }
 
   void handleCached(int amount) {
@@ -367,17 +379,27 @@ class _BookReaderState extends State<BookReader>
         showOverlay = false;
         isLoading = true;
       });
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-      var content = await widget.onRefresh!.call(index);
-      final paginator = Paginator(size: size, theme: theme);
-      setState(() {
-        pages = paginator.paginate(content);
-      });
-      calculateProgress();
-      setState(() {
-        cursor = 0;
-        isLoading = false;
-      });
+      try {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+        var content = await widget.onRefresh!.call(index);
+        final paginator = Paginator(size: size, theme: theme);
+        setState(() {
+          error = null;
+          pages = paginator.paginate(content);
+        });
+        calculateProgress();
+        setState(() {
+          cursor = 0;
+          isLoading = false;
+        });
+      } catch (error) {
+        setState(() {
+          cursor = 0;
+          this.error = '加载失败';
+          pages = [];
+          isLoading = false;
+        });
+      }
     }
   }
 

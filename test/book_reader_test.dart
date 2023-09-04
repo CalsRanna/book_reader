@@ -1,3 +1,4 @@
+import 'package:book_reader/src/tool/paginator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,5 +16,13 @@ void main() {
     );
 
     expect(reader.runtimeType, BookReader);
+  });
+
+  test('paginator', () {
+    final paginator = Paginator(
+      size: const Size(100, 100),
+      theme: ReaderTheme(),
+    );
+    expect(paginator.paginate(''), []);
   });
 }

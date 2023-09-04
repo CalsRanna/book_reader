@@ -11,7 +11,11 @@ class Paginator {
   ///
   /// [size] is the available size of the content, and [theme] has some default styles.
   Paginator({required this.size, required this.theme})
-      : _painter = TextPainter();
+      : _painter = TextPainter(
+          strutStyle: const StrutStyle(
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+        );
 
   /// Paginate the content into different pages, each page is a [TextSpan].
   List<TextSpan> paginate(String content) {

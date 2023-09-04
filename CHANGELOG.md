@@ -1,3 +1,8 @@
+## 0.0.18
+
+- add default strut style
+- add error status
+
 ## 0.0.17
 
 - update default text height to `1.618 + 1.618`

@@ -5,6 +5,7 @@ class BookPage extends StatelessWidget {
   const BookPage({
     super.key,
     required this.cursor,
+    this.error,
     required this.loading,
     required this.name,
     required this.pages,
@@ -14,9 +15,11 @@ class BookPage extends StatelessWidget {
     this.onOverlayInserted,
     this.onPageDown,
     this.onPageUp,
+    this.onRefresh,
   });
 
   final int cursor;
+  final String? error;
   final bool loading;
   final String name;
   final List<TextSpan> pages;
@@ -26,6 +29,7 @@ class BookPage extends StatelessWidget {
   final void Function()? onOverlayInserted;
   final void Function()? onPageDown;
   final void Function()? onPageUp;
+  final void Function()? onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +63,38 @@ class BookPage extends StatelessWidget {
       child = Container(
         padding: theme.pagePadding,
         width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
-        child: Text.rich(span, textDirection: theme.textDirection),
+        child: Text.rich(
+          span,
+          strutStyle: const StrutStyle(
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          textDirection: theme.textDirection,
+        ),
+      );
+    }
+    final colorScheme = Theme.of(context).colorScheme;
+    final errorContainer = colorScheme.errorContainer;
+    final onErrorContainer = colorScheme.onErrorContainer;
+    if (error != null) {
+      child = Center(
+        child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: errorContainer,
+            ),
+            height: 160,
+            width: 160,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  error!,
+                  style: theme.pageStyle.copyWith(color: onErrorContainer),
+                ),
+                const SizedBox(height: 8),
+                TextButton(onPressed: onRefresh, child: const Text('重试'))
+              ],
+            )),
       );
     }
 
