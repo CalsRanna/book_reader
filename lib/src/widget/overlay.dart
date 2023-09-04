@@ -17,6 +17,7 @@ class BookOverlay extends StatefulWidget {
     this.onOverlayRemoved,
     this.onPop,
     this.onRefresh,
+    this.onSettingPressed,
     this.onSliderChanged,
     this.onSliderChangedEnd,
     this.onSourcePressed,
@@ -36,6 +37,7 @@ class BookOverlay extends StatefulWidget {
   final void Function()? onOverlayRemoved;
   final void Function()? onPop;
   final void Function()? onRefresh;
+  final void Function()? onSettingPressed;
   final void Function(double)? onSliderChanged;
   final void Function(double)? onSliderChangedEnd;
   final void Function()? onSourcePressed;
@@ -69,6 +71,7 @@ class _BookOverlayState extends State<BookOverlay> {
           onChapterDown: widget.onChapterDown,
           onChapterUp: widget.onChapterUp,
           onDarkModePressed: widget.onDarkModePressed,
+          onSettingPressed: widget.onSettingPressed,
           onSliderChanged: widget.onSliderChanged,
           onSliderChangedEnd: widget.onSliderChangedEnd,
           onSourcePressed: widget.onSourcePressed,
@@ -334,6 +337,7 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
     this.onChapterDown,
     this.onChapterUp,
     this.onDarkModePressed,
+    this.onSettingPressed,
     this.onSliderChanged,
     this.onSliderChangedEnd,
     this.onSourcePressed,
@@ -345,6 +349,7 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
   final void Function()? onChapterDown;
   final void Function()? onChapterUp;
   final void Function()? onDarkModePressed;
+  final void Function()? onSettingPressed;
   final void Function(double)? onSliderChanged;
   final void Function(double)? onSliderChangedEnd;
   final void Function()? onSourcePressed;
@@ -410,7 +415,7 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: onSettingPressed,
                 child: const Column(
                   children: [
                     Icon(Icons.settings),

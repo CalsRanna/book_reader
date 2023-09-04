@@ -1,3 +1,7 @@
+## 0.0.20
+
+- add `onSettingPressed` callback
+
 ## 0.0.19
 
 - update default strut style

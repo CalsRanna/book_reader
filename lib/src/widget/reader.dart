@@ -30,14 +30,14 @@ class BookReader extends StatefulWidget {
     this.onCached,
     this.onCataloguePressed,
     this.onChapterChanged,
-    this.onPop,
-    this.onSettingPressed,
-    this.onMessage,
-    this.onRefresh,
-    this.onProgressChanged,
     this.onDarkModePressed,
-    this.onSourcePressed,
     this.onDetailPressed,
+    this.onMessage,
+    this.onPop,
+    this.onProgressChanged,
+    this.onRefresh,
+    this.onSettingPressed,
+    this.onSourcePressed,
   });
 
   /// Author of book, can be null if you weren't sure about it.
@@ -100,14 +100,14 @@ class BookReader extends StatefulWidget {
   /// second param should be the [cursor] of pages.
   final void Function(int index, int cursor)? onPop;
 
-  /// This is used to navigate to the new page to display settings.
-  final void Function()? onSettingPressed;
-
   final void Function()? onDarkModePressed;
 
   final void Function(String)? onMessage;
   final Future<String> Function(int)? onRefresh;
   final void Function(int)? onProgressChanged;
+
+  /// This is used to navigate to the new page to display settings.
+  final void Function()? onSettingPressed;
 
   final void Function()? onSourcePressed;
 
@@ -178,6 +178,7 @@ class _BookReaderState extends State<BookReader>
               onOverlayRemoved: handleOverlayRemoved,
               onPop: handlePop,
               onRefresh: handleRefresh,
+              onSettingPressed: widget.onSettingPressed,
               onSliderChanged: handleSliderChanged,
               onSliderChangedEnd: handleSliderChangeEnd,
               onSourcePressed: widget.onSourcePressed,
@@ -198,6 +199,10 @@ class _BookReaderState extends State<BookReader>
   @override
   void didUpdateWidget(covariant BookReader oldWidget) {
     theme = widget.theme ?? ReaderTheme();
+    if (oldWidget.theme?.pageStyle.height != theme.pageStyle.height) {
+      fetchContent();
+      calculateProgress();
+    }
     super.didUpdateWidget(oldWidget);
   }
 
