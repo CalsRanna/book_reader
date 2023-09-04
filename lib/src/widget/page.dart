@@ -59,19 +59,6 @@ class BookPage extends StatelessWidget {
     //   ),
     // );
     Widget child = const Center(child: CircularProgressIndicator.adaptive());
-    if (!loading) {
-      child = Container(
-        padding: theme.pagePadding,
-        width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
-        child: Text.rich(
-          span,
-          strutStyle: const StrutStyle(
-            leadingDistribution: TextLeadingDistribution.even,
-          ),
-          textDirection: theme.textDirection,
-        ),
-      );
-    }
     final colorScheme = Theme.of(context).colorScheme;
     final errorContainer = colorScheme.errorContainer;
     final onErrorContainer = colorScheme.onErrorContainer;
@@ -95,6 +82,19 @@ class BookPage extends StatelessWidget {
                 TextButton(onPressed: onRefresh, child: const Text('重试'))
               ],
             )),
+      );
+    } else if (!loading) {
+      child = Container(
+        padding: theme.pagePadding,
+        width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
+        child: Text.rich(
+          span,
+          strutStyle: StrutStyle(
+            forceStrutHeight: true,
+            height: theme.pageStyle.height,
+          ),
+          textDirection: theme.textDirection,
+        ),
       );
     }
 

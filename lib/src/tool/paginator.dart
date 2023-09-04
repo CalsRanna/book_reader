@@ -12,8 +12,9 @@ class Paginator {
   /// [size] is the available size of the content, and [theme] has some default styles.
   Paginator({required this.size, required this.theme})
       : _painter = TextPainter(
-          strutStyle: const StrutStyle(
-            leadingDistribution: TextLeadingDistribution.even,
+          strutStyle: StrutStyle(
+            forceStrutHeight: true,
+            height: theme.pageStyle.height,
           ),
         );
 
@@ -32,10 +33,10 @@ class Paginator {
       while (end - start > 1) {
         var page = content.substring(offset, middle);
         // 如果新的一页以换行符开始，删除这个换行符
-        if (page.startsWith('\n')) {
-          offset += 1;
-        }
-        if (_layout(content.substring(offset, middle))) {
+        // if (page.startsWith('\n')) {
+        //   offset += 1;
+        // }
+        if (_layout(page)) {
           start = middle;
           middle = ((start + end) / 2).ceil();
         } else {
@@ -52,11 +53,13 @@ class Paginator {
         }
         pages.add(_build(page));
       } else {
+        var page = content.substring(offset, middle);
         // 如果最后一次分页溢出，则减少一个字符，因为计算到后面已经在相邻位置进行截取了。
-        if (!_layout(content.substring(offset, middle))) {
+        if (!_layout(page)) {
           middle--;
+          page = content.substring(offset, middle);
         }
-        pages.add(_build(content.substring(offset, middle)));
+        pages.add(_build(page));
       }
       offset = middle;
     }

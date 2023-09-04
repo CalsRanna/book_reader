@@ -1,3 +1,7 @@
+## 0.0.19
+
+- update default strut style
+
 ## 0.0.18
 
 - add default strut style
