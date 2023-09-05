@@ -13,6 +13,7 @@ class Paginator {
   Paginator({required this.size, required this.theme})
       : _painter = TextPainter(
           strutStyle: StrutStyle(
+            fontSize: theme.pageStyle.fontSize,
             forceStrutHeight: true,
             height: theme.pageStyle.height,
           ),
@@ -33,9 +34,9 @@ class Paginator {
       while (end - start > 1) {
         var page = content.substring(offset, middle);
         // 如果新的一页以换行符开始，删除这个换行符
-        // if (page.startsWith('\n')) {
-        //   offset += 1;
-        // }
+        if (page.startsWith('\n')) {
+          offset += 1;
+        }
         if (_layout(page)) {
           start = middle;
           middle = ((start + end) / 2).ceil();

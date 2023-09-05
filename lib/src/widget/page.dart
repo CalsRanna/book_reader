@@ -37,27 +37,6 @@ class BookPage extends StatelessWidget {
     if (pages.isNotEmpty) {
       span = pages[cursor];
     }
-    // final appTheme = Theme.of(context);
-    // final colorScheme = appTheme.colorScheme;
-    // final primary = colorScheme.primary;
-    // final onPrimary = colorScheme.onPrimary;
-    // Widget child = Center(
-    //   child: Container(
-    //     decoration: BoxDecoration(
-    //       borderRadius: BorderRadius.circular(8),
-    //       color: primary,
-    //     ),
-    //     padding: const EdgeInsets.all(32),
-    //     child: Column(
-    //       mainAxisSize: MainAxisSize.min,
-    //       children: [
-    //         Text('正在加载', style: theme.pageStyle.copyWith(color: onPrimary)),
-    //         const SizedBox(height: 16),
-    //         CircularProgressIndicator(color: onPrimary),
-    //       ],
-    //     ),
-    //   ),
-    // );
     Widget child = const Center(child: CircularProgressIndicator.adaptive());
     final colorScheme = Theme.of(context).colorScheme;
     final errorContainer = colorScheme.errorContainer;
@@ -90,6 +69,7 @@ class BookPage extends StatelessWidget {
         child: Text.rich(
           span,
           strutStyle: StrutStyle(
+            fontSize: theme.pageStyle.fontSize,
             forceStrutHeight: true,
             height: theme.pageStyle.height,
           ),

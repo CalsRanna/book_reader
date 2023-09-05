@@ -1,3 +1,8 @@
+## 0.0.21
+
+- remove first `\n` per page
+- update default line space
+
 ## 0.0.20
 
 - add `onSettingPressed` callback
