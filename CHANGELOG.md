@@ -1,3 +1,7 @@
+## 0.0.22
+
+- add `PaginationException` to try to catch error
+
 ## 0.0.21
 
 - remove first `\n` per page

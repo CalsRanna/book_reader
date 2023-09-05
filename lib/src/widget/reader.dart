@@ -126,7 +126,7 @@ class _BookReaderState extends State<BookReader>
   bool hasError = false;
   late int index;
   bool isLoading = true;
-  List<TextSpan> pages = [];
+  List<String> pages = [];
   late double progress;
   bool showCache = false;
   bool showOverlay = false;
@@ -255,9 +255,10 @@ class _BookReaderState extends State<BookReader>
     try {
       var content = await widget.future(index);
       final paginator = Paginator(size: size, theme: theme);
+      final pages = paginator.paginate(content);
       setState(() {
         error = null;
-        pages = paginator.paginate(content);
+        this.pages = pages;
         isLoading = false;
       });
     } catch (error) {

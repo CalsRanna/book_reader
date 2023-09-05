@@ -22,7 +22,7 @@ class BookPage extends StatelessWidget {
   final String? error;
   final bool loading;
   final String name;
-  final List<TextSpan> pages;
+  final List<String> pages;
   final double progress;
   final ReaderTheme theme;
   final String title;
@@ -33,10 +33,6 @@ class BookPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var span = const TextSpan(text: '暂无内容');
-    if (pages.isNotEmpty) {
-      span = pages[cursor];
-    }
     Widget child = const Center(child: CircularProgressIndicator.adaptive());
     final colorScheme = Theme.of(context).colorScheme;
     final errorContainer = colorScheme.errorContainer;
@@ -63,11 +59,15 @@ class BookPage extends StatelessWidget {
             )),
       );
     } else if (!loading) {
+      var page = '暂无内容';
+      if (pages.isNotEmpty) {
+        page = pages[cursor];
+      }
       child = Container(
         padding: theme.pagePadding,
         width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
         child: Text.rich(
-          span,
+          TextSpan(text: page, style: theme.pageStyle),
           strutStyle: StrutStyle(
             fontSize: theme.pageStyle.fontSize,
             forceStrutHeight: true,
