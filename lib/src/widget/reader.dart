@@ -199,7 +199,7 @@ class _BookReaderState extends State<BookReader>
   @override
   void didUpdateWidget(covariant BookReader oldWidget) {
     theme = widget.theme ?? ReaderTheme();
-    if (oldWidget.theme?.pageStyle.height != theme.pageStyle.height) {
+    if (oldWidget.theme?.pageStyle != theme.pageStyle) {
       fetchContent();
       calculateProgress();
     }
@@ -263,7 +263,7 @@ class _BookReaderState extends State<BookReader>
       });
     } catch (error) {
       setState(() {
-        this.error = '加载失败';
+        this.error = error.toString();
         pages = [];
         isLoading = false;
       });
@@ -401,7 +401,7 @@ class _BookReaderState extends State<BookReader>
       } catch (error) {
         setState(() {
           cursor = 0;
-          this.error = '加载失败';
+          this.error = error.toString();
           pages = [];
           isLoading = false;
         });

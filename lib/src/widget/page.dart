@@ -40,23 +40,24 @@ class BookPage extends StatelessWidget {
     if (error != null) {
       child = Center(
         child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              color: errorContainer,
-            ),
-            height: 160,
-            width: 160,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  error!,
-                  style: theme.pageStyle.copyWith(color: onErrorContainer),
-                ),
-                const SizedBox(height: 8),
-                TextButton(onPressed: onRefresh, child: const Text('重试'))
-              ],
-            )),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: errorContainer,
+          ),
+          height: 120,
+          width: 120,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                error!,
+                style: theme.pageStyle.copyWith(color: onErrorContainer),
+              ),
+              const SizedBox(height: 8),
+              TextButton(onPressed: onRefresh, child: const Text('重试'))
+            ],
+          ),
+        ),
       );
     } else if (!loading) {
       var page = '暂无内容';
@@ -191,8 +192,8 @@ class _BookPageFooter extends StatelessWidget {
     if (!loading && length > 0) {
       left = [
         Text('${cursor + 1}/$length'),
-        const SizedBox(width: 16),
-        Text('${(progress * 100).toStringAsFixed(1)}%'),
+        const SizedBox(width: 24),
+        Text('${(progress * 100).toStringAsFixed(2)}%'),
       ];
     }
     final now = DateTime.now();

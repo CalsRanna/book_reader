@@ -1,3 +1,7 @@
+## 0.0.23
+
+- update reader when theme change
+
 ## 0.0.22
 
 - add `PaginationException` to try to catch error
