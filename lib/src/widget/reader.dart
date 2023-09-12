@@ -25,6 +25,7 @@ class BookReader extends StatefulWidget {
     this.duration,
     required this.future,
     this.index,
+    this.modes = PageTriggerMode.values,
     required this.name,
     this.theme,
     this.title,
@@ -70,6 +71,9 @@ class BookReader extends StatefulWidget {
 
   /// Name of book, used to displayed in header and detail modal.
   final String name;
+
+  /// Determine how to trigger page change
+  final List<PageTriggerMode> modes;
 
   final ReaderTheme? theme;
 
@@ -156,6 +160,7 @@ class _BookReaderState extends State<BookReader>
             cursor: min(cursor, pages.length - 1),
             error: error,
             loading: isLoading,
+            modes: widget.modes,
             name: widget.name,
             pages: pages,
             progress: progress,

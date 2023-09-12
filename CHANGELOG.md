@@ -1,3 +1,7 @@
+## 0.1.2
+
+- add trigger mode to determine change page or not
+
 ## 0.1.1
 
 - fix missing plugin exception in ios platform

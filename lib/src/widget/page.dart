@@ -7,6 +7,7 @@ class BookPage extends StatelessWidget {
     required this.cursor,
     this.error,
     required this.loading,
+    required this.modes,
     required this.name,
     required this.pages,
     required this.progress,
@@ -21,6 +22,7 @@ class BookPage extends StatelessWidget {
   final int cursor;
   final String? error;
   final bool loading;
+  final List<PageTriggerMode> modes;
   final String name;
   final List<String> pages;
   final double progress;
@@ -108,6 +110,7 @@ class BookPage extends StatelessWidget {
   }
 
   void handleHorizontalDrag(BuildContext context, DragEndDetails details) {
+    if (!modes.contains(PageTriggerMode.drag)) return;
     if (details.primaryVelocity! < 0) {
       onPageDown?.call();
     } else {
@@ -120,13 +123,17 @@ class BookPage extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final position = details.localPosition;
     if (position.dx < width / 3) {
+      if (!modes.contains(PageTriggerMode.tap)) return;
       onPageUp?.call();
     } else if (position.dx > width / 3 * 2) {
+      if (!modes.contains(PageTriggerMode.tap)) return;
       onPageDown?.call();
     } else {
       if (position.dy < height / 4) {
+        if (!modes.contains(PageTriggerMode.tap)) return;
         onPageUp?.call();
       } else if (position.dy > height / 4 * 3) {
+        if (!modes.contains(PageTriggerMode.tap)) return;
         onPageDown?.call();
       } else {
         onOverlayInserted?.call();
