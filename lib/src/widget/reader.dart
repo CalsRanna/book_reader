@@ -238,10 +238,12 @@ class _BookReaderState extends State<BookReader>
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     if (Platform.isAndroid) {
       subscription = FlutterAndroidVolumeKeydown.stream.listen((event) {
-        if (event == HardwareButton.volume_down) {
-          handlePageDown();
-        } else if (event == HardwareButton.volume_up) {
-          handlePageUp();
+        if (mounted) {
+          if (event == HardwareButton.volume_down) {
+            handlePageDown();
+          } else if (event == HardwareButton.volume_up) {
+            handlePageUp();
+          }
         }
       });
     }

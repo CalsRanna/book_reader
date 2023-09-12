@@ -1,3 +1,7 @@
+## 0.1.4
+
+- fix page up and down issue
+
 ## 0.1.3
 
 - rename `PageTriggerMode` into `PageTurningMode`
