@@ -1,6 +1,6 @@
 name: book_reader
 description: A widget used to read a book.
-version: 0.0.23
+version: 0.1.0
 homepage: https://github.com/CalsRanna/book_reader
 repository: https://github.com/CalsRanna/book_reader
 
@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_android_volume_keydown: ^1.0.0
 
 dev_dependencies:
   flutter_test:

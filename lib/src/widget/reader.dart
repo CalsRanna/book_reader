@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:book_reader/book_reader.dart';
@@ -6,6 +7,7 @@ import 'package:book_reader/src/widget/overlay.dart';
 import 'package:book_reader/src/widget/page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_android_volume_keydown/flutter_android_volume_keydown.dart';
 
 /// [BookReader] is a widget used to read book. It provide some way to
 /// paginate and can be customized by you own choice since we provide
@@ -133,6 +135,7 @@ class _BookReaderState extends State<BookReader>
   late ReaderTheme theme;
   late int total;
   Size size = Size.zero;
+  late StreamSubscription<HardwareButton>? subscription;
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +230,13 @@ class _BookReaderState extends State<BookReader>
     total = widget.total ?? 1;
     controller = AnimationController(duration: duration, vsync: this);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    subscription = FlutterAndroidVolumeKeydown.stream.listen((event) {
+      if (event == HardwareButton.volume_down) {
+        handlePageDown();
+      } else if (event == HardwareButton.volume_up) {
+        handlePageUp();
+      }
+    });
   }
 
   void calculateProgress() {

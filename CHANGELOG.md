@@ -1,3 +1,7 @@
+## 0.1.0
+
+- support volume button to page down or page up
+
 ## 0.0.23
 
 - update reader when theme change
