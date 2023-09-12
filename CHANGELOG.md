@@ -1,3 +1,7 @@
+## 0.1.3
+
+- rename `PageTriggerMode` into `PageTurningMode`
+
 ## 0.1.2
 
 - add trigger mode to determine change page or not

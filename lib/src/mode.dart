@@ -1,1 +1,1 @@
-enum PageTriggerMode { drag, tap }
+enum PageTurningMode { drag, tap }

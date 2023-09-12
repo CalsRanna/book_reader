@@ -25,7 +25,7 @@ class BookReader extends StatefulWidget {
     this.duration,
     required this.future,
     this.index,
-    this.modes = PageTriggerMode.values,
+    this.modes = PageTurningMode.values,
     required this.name,
     this.theme,
     this.title,
@@ -73,7 +73,7 @@ class BookReader extends StatefulWidget {
   final String name;
 
   /// Determine how to trigger page change
-  final List<PageTriggerMode> modes;
+  final List<PageTurningMode> modes;
 
   final ReaderTheme? theme;
 
