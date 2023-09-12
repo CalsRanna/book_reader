@@ -1,3 +1,7 @@
+## 0.1.1
+
+- fix missing plugin exception in ios platform
+
 ## 0.1.0
 
 - support volume button to page down or page up

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:book_reader/book_reader.dart';
@@ -230,13 +231,15 @@ class _BookReaderState extends State<BookReader>
     total = widget.total ?? 1;
     controller = AnimationController(duration: duration, vsync: this);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-    subscription = FlutterAndroidVolumeKeydown.stream.listen((event) {
-      if (event == HardwareButton.volume_down) {
-        handlePageDown();
-      } else if (event == HardwareButton.volume_up) {
-        handlePageUp();
-      }
-    });
+    if (Platform.isAndroid) {
+      subscription = FlutterAndroidVolumeKeydown.stream.listen((event) {
+        if (event == HardwareButton.volume_down) {
+          handlePageDown();
+        } else if (event == HardwareButton.volume_up) {
+          handlePageUp();
+        }
+      });
+    }
   }
 
   void calculateProgress() {
