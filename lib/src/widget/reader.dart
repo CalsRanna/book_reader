@@ -216,7 +216,6 @@ class _BookReaderState extends State<BookReader>
   void didUpdateWidget(covariant BookReader oldWidget) {
     theme = widget.theme ?? ReaderTheme();
     if (oldWidget.theme?.pageStyle != theme.pageStyle) {
-      size = calculateSize();
       fetchContent(force: true);
       calculateProgress();
     }
