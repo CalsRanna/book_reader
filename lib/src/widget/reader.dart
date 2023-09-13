@@ -133,7 +133,12 @@ class _BookReaderState extends State<BookReader>
   bool hasError = false;
   late int index;
   bool isLoading = true;
+  String? nextError;
+  List<String> nextPages = [];
+  int oldIndex = 0;
   List<String> pages = [];
+  List<String> previousPages = [];
+  String? previousError;
   late double progress;
   bool showCache = false;
   bool showOverlay = false;
@@ -199,17 +204,20 @@ class _BookReaderState extends State<BookReader>
 
   @override
   void didChangeDependencies() {
-    size = calculateSize();
-    fetchContent();
-    calculateProgress();
-    super.didChangeDependencies();
+    if (size == Size.zero) {
+      size = calculateSize();
+      fetchContent();
+      calculateProgress();
+      super.didChangeDependencies();
+    }
   }
 
   @override
   void didUpdateWidget(covariant BookReader oldWidget) {
     theme = widget.theme ?? ReaderTheme();
     if (oldWidget.theme?.pageStyle != theme.pageStyle) {
-      fetchContent();
+      size = calculateSize();
+      fetchContent(force: true);
       calculateProgress();
     }
     super.didUpdateWidget(oldWidget);
@@ -268,7 +276,17 @@ class _BookReaderState extends State<BookReader>
     return Size(width, height);
   }
 
-  Future<void> fetchContent() async {
+  Future<void> fetchContent({bool force = false}) async {
+    if (nextPages.isEmpty || previousPages.isEmpty || oldIndex == 0 || force) {
+      fetch(index);
+      preload(index);
+    } else {
+      copy();
+      preload(index);
+    }
+  }
+
+  void fetch(int index) async {
     setState(() {
       isLoading = true;
     });
@@ -286,6 +304,44 @@ class _BookReaderState extends State<BookReader>
         this.error = error.toString();
         pages = [];
         isLoading = false;
+      });
+    }
+  }
+
+  void preload(int index) async {
+    final paginator = Paginator(size: size, theme: theme);
+    if (index - 1 >= 0) {
+      try {
+        final content = await widget.future(index - 1);
+        previousPages = paginator.paginate(content);
+        previousError = null;
+      } catch (error) {
+        previousPages = [];
+        previousError = error.toString();
+      }
+    }
+    if (index + 1 < total) {
+      try {
+        final content = await widget.future(index + 1);
+        nextPages = paginator.paginate(content);
+        nextError = null;
+      } catch (error) {
+        nextPages = [];
+        nextError = error.toString();
+      }
+    }
+  }
+
+  void copy() {
+    if (oldIndex < index) {
+      setState(() {
+        error = nextError;
+        pages = nextPages;
+      });
+    } else {
+      setState(() {
+        error = previousError;
+        pages = previousPages;
       });
     }
   }
@@ -308,6 +364,7 @@ class _BookReaderState extends State<BookReader>
     if (index < total - 1) {
       setState(() {
         cursor = 0;
+        oldIndex = index;
         index = index + 1;
       });
       fetchContent();
@@ -323,6 +380,7 @@ class _BookReaderState extends State<BookReader>
     if (index > 0) {
       setState(() {
         cursor = 0;
+        oldIndex = index;
         index = index - 1;
       });
       fetchContent();
@@ -361,6 +419,7 @@ class _BookReaderState extends State<BookReader>
     } else if (cursor + 1 >= length && index + 1 < total) {
       setState(() {
         cursor = 0;
+        oldIndex = index;
         index = index + 1;
       });
       widget.onChapterChanged?.call(index);
@@ -379,6 +438,7 @@ class _BookReaderState extends State<BookReader>
       });
     } else if (cursor == 0 && index > 0) {
       setState(() {
+        oldIndex = index;
         index = index - 1;
       });
       widget.onChapterChanged?.call(index);
@@ -443,14 +503,17 @@ class _BookReaderState extends State<BookReader>
     if (current <= 0) {
       setState(() {
         index = 0;
+        oldIndex = 0;
       });
     } else if (current >= total) {
       setState(() {
         index = total - 1;
+        oldIndex = 0;
       });
     } else {
       setState(() {
         index = current;
+        oldIndex = 0;
       });
     }
     fetchContent();

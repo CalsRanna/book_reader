@@ -1,3 +1,10 @@
+## 0.1.5
+
+- adjust cache config preset
+- update error text style
+- preload next chapter
+- fix duplication fetch
+
 ## 0.1.4
 
 - fix page up and down issue

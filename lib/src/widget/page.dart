@@ -53,7 +53,10 @@ class BookPage extends StatelessWidget {
             children: [
               Text(
                 error!,
-                style: theme.pageStyle.copyWith(color: onErrorContainer),
+                style: theme.pageStyle.copyWith(
+                  color: onErrorContainer,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 8),
               TextButton(onPressed: onRefresh, child: const Text('重试'))

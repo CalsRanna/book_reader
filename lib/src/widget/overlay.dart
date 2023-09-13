@@ -301,15 +301,15 @@ class _BookPageOverlayCache extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: () => handleCached(50),
-              child: const Text('50章'),
+              onPressed: () => handleCached(100),
+              child: const Text('100章'),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: OutlinedButton(
-              onPressed: () => handleCached(100),
-              child: const Text('100章'),
+              onPressed: () => handleCached(200),
+              child: const Text('200章'),
             ),
           ),
           const SizedBox(width: 8),
