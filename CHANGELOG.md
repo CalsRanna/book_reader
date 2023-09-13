@@ -1,6 +1,12 @@
+## 0.1.8
+
+- calculate device height correctly
+- update empty page style
+- support e ink mode
+
 ## 0.1.7
 
-- fix calculate size
+- fix calculate size issue
 
 ## 0.1.6
 

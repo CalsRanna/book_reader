@@ -23,6 +23,7 @@ class BookReader extends StatefulWidget {
     this.cursor,
     this.darkMode = false,
     this.duration,
+    this.eInkMode = false,
     required this.future,
     this.index,
     this.modes = PageTurningMode.values,
@@ -60,6 +61,8 @@ class BookReader extends StatefulWidget {
   /// Duration for animation, include app and bottom bar slide transition,
   /// and page transition automated.
   final Duration? duration;
+
+  final bool eInkMode;
 
   /// Used to fetch content from internet or some other way.**[NOTICE]**
   /// This function can not use ***[setState]*** in it because this
@@ -163,6 +166,7 @@ class _BookReaderState extends State<BookReader>
             ),
           BookPage(
             cursor: min(cursor, pages.length - 1),
+            eInkMode: widget.eInkMode,
             error: error,
             loading: isLoading,
             modes: widget.modes,
@@ -265,18 +269,20 @@ class _BookReaderState extends State<BookReader>
   Size calculateSize() {
     final mediaQuery = MediaQuery.of(context);
     final globalSize = mediaQuery.size;
-    final padding = mediaQuery.padding;
-    final viewPadding = mediaQuery.viewPadding;
-    final viewInsets = mediaQuery.viewInsets;
     var height = globalSize.height;
-    height += padding.vertical;
-    height += viewPadding.vertical;
-    height += viewInsets.vertical;
-    height -= theme.headerPadding.vertical;
-    height -= theme.headerStyle.fontSize! * theme.headerStyle.height!;
-    height -= theme.pagePadding.vertical;
-    height -= theme.footerPadding.vertical;
-    height -= theme.footerStyle.fontSize! * theme.footerStyle.height!;
+    if (Platform.isAndroid) {
+      final padding = mediaQuery.padding;
+      height = height + padding.vertical;
+    }
+    // final viewPadding = mediaQuery.viewPadding;
+    // final viewInsets = mediaQuery.viewInsets;
+    // height = height + viewPadding.vertical;
+    // height = height + viewInsets.vertical;
+    height = height - theme.headerPadding.vertical;
+    height = height - theme.headerStyle.fontSize! * theme.headerStyle.height!;
+    height = height - theme.pagePadding.vertical;
+    height = height - theme.footerPadding.vertical;
+    height = height - theme.footerStyle.fontSize! * theme.footerStyle.height!;
     final width = globalSize.width - theme.pagePadding.horizontal;
     return Size(width, height);
   }

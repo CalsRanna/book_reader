@@ -5,6 +5,7 @@ class BookPage extends StatelessWidget {
   const BookPage({
     super.key,
     required this.cursor,
+    required this.eInkMode,
     this.error,
     required this.loading,
     required this.modes,
@@ -20,6 +21,7 @@ class BookPage extends StatelessWidget {
   });
 
   final int cursor;
+  final bool eInkMode;
   final String? error;
   final bool loading;
   final List<PageTurningMode> modes;
@@ -35,7 +37,12 @@ class BookPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = const Center(child: CircularProgressIndicator.adaptive());
+    Widget child;
+    if (eInkMode) {
+      child = Center(child: Text('正在加载', style: theme.pageStyle));
+    } else {
+      child = const Center(child: CircularProgressIndicator());
+    }
     final colorScheme = Theme.of(context).colorScheme;
     final errorContainer = colorScheme.errorContainer;
     final onErrorContainer = colorScheme.onErrorContainer;
@@ -65,23 +72,23 @@ class BookPage extends StatelessWidget {
         ),
       );
     } else if (!loading) {
-      var page = '暂无内容';
       if (pages.isNotEmpty) {
-        page = pages[cursor];
-      }
-      child = Container(
-        padding: theme.pagePadding,
-        width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
-        child: Text.rich(
-          TextSpan(text: page, style: theme.pageStyle),
-          strutStyle: StrutStyle(
-            fontSize: theme.pageStyle.fontSize,
-            forceStrutHeight: true,
-            height: theme.pageStyle.height,
+        child = Container(
+          padding: theme.pagePadding,
+          width: double.infinity, // 确保文字很少的情况下也要撑开整个屏幕
+          child: Text.rich(
+            TextSpan(text: pages[cursor], style: theme.pageStyle),
+            strutStyle: StrutStyle(
+              fontSize: theme.pageStyle.fontSize,
+              forceStrutHeight: true,
+              height: theme.pageStyle.height,
+            ),
+            textDirection: theme.textDirection,
           ),
-          textDirection: theme.textDirection,
-        ),
-      );
+        );
+      } else {
+        child = Center(child: Text('暂无内容', style: theme.pageStyle));
+      }
     }
 
     return GestureDetector(
