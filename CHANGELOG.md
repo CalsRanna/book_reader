@@ -1,3 +1,7 @@
+## 0.1.7
+
+- fix calculate size
+
 ## 0.1.6
 
 - fix duplicate calculate size

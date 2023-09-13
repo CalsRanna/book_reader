@@ -208,8 +208,8 @@ class _BookReaderState extends State<BookReader>
       size = calculateSize();
       fetchContent();
       calculateProgress();
-      super.didChangeDependencies();
     }
+    super.didChangeDependencies();
   }
 
   @override
@@ -265,12 +265,18 @@ class _BookReaderState extends State<BookReader>
   Size calculateSize() {
     final mediaQuery = MediaQuery.of(context);
     final globalSize = mediaQuery.size;
-    final height = globalSize.height -
-        theme.headerPadding.vertical -
-        theme.headerStyle.fontSize! * theme.headerStyle.height! -
-        theme.pagePadding.vertical -
-        theme.footerPadding.vertical -
-        theme.footerStyle.fontSize! * theme.footerStyle.height!;
+    final padding = mediaQuery.padding;
+    final viewPadding = mediaQuery.viewPadding;
+    final viewInsets = mediaQuery.viewInsets;
+    var height = globalSize.height;
+    height += padding.vertical;
+    height += viewPadding.vertical;
+    height += viewInsets.vertical;
+    height -= theme.headerPadding.vertical;
+    height -= theme.headerStyle.fontSize! * theme.headerStyle.height!;
+    height -= theme.pagePadding.vertical;
+    height -= theme.footerPadding.vertical;
+    height -= theme.footerStyle.fontSize! * theme.footerStyle.height!;
     final width = globalSize.width - theme.pagePadding.horizontal;
     return Size(width, height);
   }

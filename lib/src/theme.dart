@@ -3,21 +3,17 @@ import 'package:flutter/material.dart';
 class ReaderTheme {
   Color backgroundColor = Colors.white;
   String backgroundImage = '';
-  EdgeInsets footerPadding = const EdgeInsets.only(
-    bottom: 34,
-    left: 16,
-    right: 16,
-    top: 4,
+  EdgeInsets footerPadding = const EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 4,
   );
   TextStyle footerStyle = const TextStyle(
     fontSize: 10,
     height: 1,
   );
-  EdgeInsets headerPadding = const EdgeInsets.only(
-    bottom: 4,
-    left: 16,
-    right: 16,
-    top: 47,
+  EdgeInsets headerPadding = const EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 4,
   );
   TextStyle headerStyle = const TextStyle(
     fontSize: 10,
