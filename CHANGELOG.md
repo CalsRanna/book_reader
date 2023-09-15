@@ -1,3 +1,7 @@
+## 0.1.9
+
+- fix duplication update reader while dark mode changing
+
 ## 0.1.8
 
 - calculate device height correctly
