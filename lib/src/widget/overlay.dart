@@ -124,6 +124,7 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.all(4),
       child: Column(
         children: [
           SizedBox(height: MediaQuery.of(context).padding.top),

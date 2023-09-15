@@ -1,3 +1,7 @@
+## 0.1.10
+
+- update app bar padding
+
 ## 0.1.9
 
 - fix duplication update reader while dark mode changing
