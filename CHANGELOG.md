@@ -1,3 +1,7 @@
+## 0.1.13
+
+- fix preload error
+
 ## 0.1.12
 
 - update default overlay theme

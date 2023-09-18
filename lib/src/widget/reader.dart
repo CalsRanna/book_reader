@@ -327,37 +327,24 @@ class _BookReaderState extends State<BookReader>
 
   void preload(int index) async {
     final paginator = Paginator(size: size, theme: theme);
-    if (oldIndex < index) {
-      if (pages.isNotEmpty) {
-        previousPages = pages;
-        previousError = error;
-      } else {
-        if (index - 1 >= 0) {
-          try {
-            final content = await widget.future(index - 1);
-            previousPages = paginator.paginate(content);
-            previousError = null;
-          } catch (error) {
-            previousPages = [];
-            previousError = error.toString();
-          }
-        }
+    if (index - 1 >= 0) {
+      try {
+        final content = await widget.future(index - 1);
+        previousPages = paginator.paginate(content);
+        previousError = null;
+      } catch (error) {
+        previousPages = [];
+        previousError = error.toString();
       }
-    } else {
-      if (pages.isNotEmpty) {
-        nextPages = pages;
-        nextError = error;
-      } else {
-        if (index + 1 < total) {
-          try {
-            final content = await widget.future(index + 1);
-            nextPages = paginator.paginate(content);
-            nextError = null;
-          } catch (error) {
-            nextPages = [];
-            nextError = error.toString();
-          }
-        }
+    }
+    if (index + 1 < total) {
+      try {
+        final content = await widget.future(index + 1);
+        nextPages = paginator.paginate(content);
+        nextError = null;
+      } catch (error) {
+        nextPages = [];
+        nextError = error.toString();
       }
     }
   }
