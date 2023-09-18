@@ -1,6 +1,7 @@
 ## 0.1.11
 
 - calculate progress more precisely
+- optimize preload performance
 
 ## 0.1.10
 

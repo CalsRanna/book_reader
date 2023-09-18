@@ -230,7 +230,7 @@ class _BookPageFooter extends StatelessWidget {
         child: Row(
           children: [
             ...left,
-            const Expanded(child: SizedBox()),
+            const Spacer(),
             Text('$hour:$minute'),
           ],
         ),

@@ -211,7 +211,6 @@ class _BookReaderState extends State<BookReader>
     if (size == Size.zero) {
       size = calculateSize();
       fetchContent();
-      calculateProgress();
     }
     super.didChangeDependencies();
   }
@@ -225,7 +224,6 @@ class _BookReaderState extends State<BookReader>
     final conditionB = pageStyle.height != oldPageStyle?.height;
     if (conditionA || conditionB) {
       fetchContent(force: true);
-      calculateProgress();
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -266,7 +264,11 @@ class _BookReaderState extends State<BookReader>
 
   void calculateProgress() {
     setState(() {
-      progress = (index + cursor / pages.length) * 1.0 / total;
+      if (pages.isEmpty) {
+        progress = index / total;
+      } else {
+        progress = (index + (cursor + 1) / pages.length) * 1.0 / total;
+      }
     });
   }
 
@@ -293,15 +295,15 @@ class _BookReaderState extends State<BookReader>
 
   Future<void> fetchContent({bool force = false}) async {
     if (nextPages.isEmpty || previousPages.isEmpty || oldIndex == 0 || force) {
-      fetch(index);
-      preload(index);
+      await fetch(index);
     } else {
       copy();
-      preload(index);
     }
+    calculateProgress(); // Calculate progress here to ensure pages is paginated already.
+    preload(index);
   }
 
-  void fetch(int index) async {
+  Future<void> fetch(int index) async {
     setState(() {
       isLoading = true;
     });
@@ -396,7 +398,6 @@ class _BookReaderState extends State<BookReader>
         index = index + 1;
       });
       fetchContent();
-      calculateProgress();
       widget.onChapterChanged?.call(index);
     } else {
       widget.onMessage?.call('已经是最后一章');
@@ -412,7 +413,6 @@ class _BookReaderState extends State<BookReader>
         index = index - 1;
       });
       fetchContent();
-      calculateProgress();
       widget.onChapterChanged?.call(index);
     } else {
       widget.onMessage?.call('已经是第一章');
@@ -453,7 +453,6 @@ class _BookReaderState extends State<BookReader>
       });
       widget.onChapterChanged?.call(index);
       await fetchContent();
-      calculateProgress();
     } else {
       widget.onMessage?.call('已经是最后一页');
     }
@@ -500,14 +499,12 @@ class _BookReaderState extends State<BookReader>
         var content = await widget.onRefresh!.call(index);
         final paginator = Paginator(size: size, theme: theme);
         setState(() {
+          cursor = 0;
           error = null;
           pages = paginator.paginate(content);
-        });
-        calculateProgress();
-        setState(() {
-          cursor = 0;
           isLoading = false;
         });
+        calculateProgress();
       } catch (error) {
         setState(() {
           cursor = 0;
@@ -515,6 +512,7 @@ class _BookReaderState extends State<BookReader>
           pages = [];
           isLoading = false;
         });
+        calculateProgress();
       }
     }
   }
@@ -547,7 +545,6 @@ class _BookReaderState extends State<BookReader>
       });
     }
     fetchContent();
-    calculateProgress();
     widget.onChapterChanged?.call(index);
     widget.onProgressChanged?.call(cursor);
   }
