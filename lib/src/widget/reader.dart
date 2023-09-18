@@ -325,24 +325,37 @@ class _BookReaderState extends State<BookReader>
 
   void preload(int index) async {
     final paginator = Paginator(size: size, theme: theme);
-    if (index - 1 >= 0) {
-      try {
-        final content = await widget.future(index - 1);
-        previousPages = paginator.paginate(content);
-        previousError = null;
-      } catch (error) {
-        previousPages = [];
-        previousError = error.toString();
+    if (oldIndex < index) {
+      if (pages.isNotEmpty) {
+        previousPages = pages;
+        previousError = error;
+      } else {
+        if (index - 1 >= 0) {
+          try {
+            final content = await widget.future(index - 1);
+            previousPages = paginator.paginate(content);
+            previousError = null;
+          } catch (error) {
+            previousPages = [];
+            previousError = error.toString();
+          }
+        }
       }
-    }
-    if (index + 1 < total) {
-      try {
-        final content = await widget.future(index + 1);
-        nextPages = paginator.paginate(content);
-        nextError = null;
-      } catch (error) {
-        nextPages = [];
-        nextError = error.toString();
+    } else {
+      if (pages.isNotEmpty) {
+        nextPages = pages;
+        nextError = error;
+      } else {
+        if (index + 1 < total) {
+          try {
+            final content = await widget.future(index + 1);
+            nextPages = paginator.paginate(content);
+            nextError = null;
+          } catch (error) {
+            nextPages = [];
+            nextError = error.toString();
+          }
+        }
       }
     }
   }
@@ -431,6 +444,7 @@ class _BookReaderState extends State<BookReader>
       setState(() {
         cursor = cursor + 1;
       });
+      calculateProgress();
     } else if (cursor + 1 >= length && index + 1 < total) {
       setState(() {
         cursor = 0;
@@ -451,6 +465,7 @@ class _BookReaderState extends State<BookReader>
       setState(() {
         cursor = cursor - 1;
       });
+      calculateProgress();
     } else if (cursor == 0 && index > 0) {
       setState(() {
         oldIndex = index;
@@ -458,11 +473,11 @@ class _BookReaderState extends State<BookReader>
       });
       widget.onChapterChanged?.call(index);
       await fetchContent();
-      calculateProgress();
       final length = pages.length;
       setState(() {
         cursor = length - 1;
       });
+      calculateProgress();
     } else {
       widget.onMessage?.call('已经是第一页');
     }
