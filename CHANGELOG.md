@@ -1,3 +1,7 @@
+## 0.1.12
+
+- update default overlay theme
+
 ## 0.1.11
 
 - calculate progress more precisely

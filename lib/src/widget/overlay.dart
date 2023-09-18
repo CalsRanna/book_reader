@@ -180,7 +180,7 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
                   behavior: HitTestBehavior.opaque,
                   onTap: handleTap,
                   child: SizedBox(
-                    height: MediaQuery.of(context).padding.top + 48,
+                    height: MediaQuery.of(context).padding.top + 56,
                     width: double.infinity,
                   ),
                 ),
