@@ -1,3 +1,7 @@
+## 0.1.11
+
+- calculate progress more precisely
+
 ## 0.1.10
 
 - update app bar padding

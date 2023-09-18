@@ -266,7 +266,7 @@ class _BookReaderState extends State<BookReader>
 
   void calculateProgress() {
     setState(() {
-      progress = (index + 1) / total;
+      progress = (index + cursor / pages.length) * 1.0 / total;
     });
   }
 
