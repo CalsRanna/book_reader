@@ -1,3 +1,7 @@
+## 0.1.15
+
+- catch `RangeError` in reader
+
 ## 0.1.14
 
 - update error style

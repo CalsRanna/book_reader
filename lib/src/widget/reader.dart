@@ -329,6 +329,14 @@ class _BookReaderState extends State<BookReader>
         isLoading = false;
         pages = [];
       });
+    } on RangeError {
+      setState(() {
+        cursor = 0;
+        error = '出错了，请稍后再试';
+        isLoading = false;
+        pages = [];
+      });
+      calculateProgress();
     } catch (error) {
       setState(() {
         this.error = error.runtimeType.toString();
@@ -515,6 +523,14 @@ class _BookReaderState extends State<BookReader>
         });
         calculateProgress();
       } on SocketException {
+        setState(() {
+          cursor = 0;
+          error = '出错了，请稍后再试';
+          isLoading = false;
+          pages = [];
+        });
+        calculateProgress();
+      } on RangeError {
         setState(() {
           cursor = 0;
           error = '出错了，请稍后再试';
