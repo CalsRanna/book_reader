@@ -1,3 +1,7 @@
+## 0.1.16
+
+- calculate progress correctly while chapters is empty
+
 ## 0.1.15
 
 - catch `RangeError` in reader

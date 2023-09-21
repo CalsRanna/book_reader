@@ -264,12 +264,14 @@ class _BookReaderState extends State<BookReader>
   }
 
   void calculateProgress() {
+    double value;
+    if (pages.isEmpty) {
+      value = index / total;
+    } else {
+      value = (index + (cursor + 1) / pages.length) * 1.0 / total;
+    }
     setState(() {
-      if (pages.isEmpty) {
-        progress = index / total;
-      } else {
-        progress = (index + (cursor + 1) / pages.length) * 1.0 / total;
-      }
+      progress = value.clamp(0.0, 1.0);
     });
   }
 
