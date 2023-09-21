@@ -1,3 +1,7 @@
+## 0.1.14
+
+- update error style
+
 ## 0.1.13
 
 - fix preload error

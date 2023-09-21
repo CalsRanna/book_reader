@@ -179,6 +179,7 @@ class _BookReaderState extends State<BookReader>
             onPageDown: handlePageDown,
             onPageUp: handlePageUp,
             onRefresh: handleRefresh,
+            onSourcePressed: widget.onSourcePressed,
           ),
           if (showOverlay)
             BookOverlay(
@@ -313,14 +314,26 @@ class _BookReaderState extends State<BookReader>
       final pages = paginator.paginate(content);
       setState(() {
         error = null;
-        this.pages = pages;
         isLoading = false;
+        this.pages = pages;
+      });
+    } on TimeoutException {
+      setState(() {
+        error = '出错了，请稍后再试';
+        isLoading = false;
+        pages = [];
+      });
+    } on SocketException {
+      setState(() {
+        error = '出错了，请稍后再试';
+        isLoading = false;
+        pages = [];
       });
     } catch (error) {
       setState(() {
-        this.error = error.toString();
-        pages = [];
+        this.error = error.runtimeType.toString();
         isLoading = false;
+        pages = [];
       });
     }
   }
@@ -477,9 +490,10 @@ class _BookReaderState extends State<BookReader>
   void handleRefresh() async {
     if (widget.onRefresh != null) {
       setState(() {
+        error = null;
+        isLoading = true;
         showCache = false;
         showOverlay = false;
-        isLoading = true;
       });
       try {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
@@ -488,16 +502,32 @@ class _BookReaderState extends State<BookReader>
         setState(() {
           cursor = 0;
           error = null;
-          pages = paginator.paginate(content);
           isLoading = false;
+          pages = paginator.paginate(content);
+        });
+        calculateProgress();
+      } on TimeoutException {
+        setState(() {
+          cursor = 0;
+          error = '出错了，请稍后再试';
+          isLoading = false;
+          pages = [];
+        });
+        calculateProgress();
+      } on SocketException {
+        setState(() {
+          cursor = 0;
+          error = '出错了，请稍后再试';
+          isLoading = false;
+          pages = [];
         });
         calculateProgress();
       } catch (error) {
         setState(() {
           cursor = 0;
-          this.error = error.toString();
-          pages = [];
+          this.error = error.runtimeType.toString();
           isLoading = false;
+          pages = [];
         });
         calculateProgress();
       }

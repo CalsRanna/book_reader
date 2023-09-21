@@ -18,6 +18,7 @@ class BookPage extends StatelessWidget {
     this.onPageDown,
     this.onPageUp,
     this.onRefresh,
+    this.onSourcePressed,
   });
 
   final int cursor;
@@ -34,6 +35,7 @@ class BookPage extends StatelessWidget {
   final void Function()? onPageDown;
   final void Function()? onPageUp;
   final void Function()? onRefresh;
+  final void Function()? onSourcePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -43,32 +45,23 @@ class BookPage extends StatelessWidget {
     } else {
       child = const Center(child: CircularProgressIndicator());
     }
-    final colorScheme = Theme.of(context).colorScheme;
-    final errorContainer = colorScheme.errorContainer;
-    final onErrorContainer = colorScheme.onErrorContainer;
+    final textTheme = Theme.of(context).textTheme;
+    final bodyLarge = textTheme.bodyLarge;
     if (error != null) {
       child = Center(
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: errorContainer,
-          ),
-          height: 120,
-          width: 120,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                error!,
-                style: theme.pageStyle.copyWith(
-                  color: onErrorContainer,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextButton(onPressed: onRefresh, child: const Text('重试'))
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(error!, style: bodyLarge),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(onPressed: onSourcePressed, child: const Text('换源')),
+                ElevatedButton(onPressed: onRefresh, child: const Text('重试')),
+              ],
+            ),
+          ],
         ),
       );
     } else if (!loading) {
