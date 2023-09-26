@@ -133,15 +133,11 @@ class _BookReaderState extends State<BookReader>
   late int cursor;
   late Duration duration;
   String? error;
-  bool hasError = false;
+  Map<int, String?> errors = {};
   late int index;
-  bool isLoading = true;
-  String? nextError;
-  List<String> nextPages = [];
-  int oldIndex = 0;
+  bool loading = true;
   List<String> pages = [];
-  List<String> previousPages = [];
-  String? previousError;
+  Map<int, List<String>> preloads = {};
   late double progress;
   bool showCache = false;
   bool showOverlay = false;
@@ -168,7 +164,7 @@ class _BookReaderState extends State<BookReader>
             cursor: min(cursor, pages.length - 1),
             eInkMode: widget.eInkMode,
             error: error,
-            loading: isLoading,
+            loading: loading,
             modes: widget.modes,
             name: widget.name,
             pages: pages,
@@ -297,7 +293,8 @@ class _BookReaderState extends State<BookReader>
   }
 
   Future<void> fetchContent({bool force = false}) async {
-    if (nextPages.isEmpty || previousPages.isEmpty || oldIndex == 0 || force) {
+    final cached = preloads.keys.contains(index);
+    if (!cached || force) {
       await fetch(index);
     } else {
       copy();
@@ -308,7 +305,7 @@ class _BookReaderState extends State<BookReader>
 
   Future<void> fetch(int index) async {
     setState(() {
-      isLoading = true;
+      loading = true;
     });
     try {
       var content = await widget.future(index);
@@ -316,74 +313,77 @@ class _BookReaderState extends State<BookReader>
       final pages = paginator.paginate(content);
       setState(() {
         error = null;
-        isLoading = false;
+        loading = false;
         this.pages = pages;
       });
     } on TimeoutException {
       setState(() {
         error = '出错了，请稍后再试';
-        isLoading = false;
+        loading = false;
         pages = [];
       });
     } on SocketException {
       setState(() {
         error = '出错了，请稍后再试';
-        isLoading = false;
+        loading = false;
         pages = [];
       });
     } on RangeError {
       setState(() {
         cursor = 0;
         error = '出错了，请稍后再试';
-        isLoading = false;
+        loading = false;
         pages = [];
       });
       calculateProgress();
     } catch (error) {
       setState(() {
         this.error = error.runtimeType.toString();
-        isLoading = false;
+        loading = false;
         pages = [];
       });
     }
   }
 
   void preload(int index) async {
+    preloads.clear();
+    errors.clear();
     final paginator = Paginator(size: size, theme: theme);
-    if (index - 1 >= 0) {
-      try {
-        final content = await widget.future(index - 1);
-        previousPages = paginator.paginate(content);
-        previousError = null;
-      } catch (error) {
-        previousPages = [];
-        previousError = error.toString();
-      }
+    final next = index + 1;
+    final previous = index - 1;
+    if (next < total) {
+      _preload(paginator, next);
     }
-    if (index + 1 < total) {
-      try {
-        final content = await widget.future(index + 1);
-        nextPages = paginator.paginate(content);
-        nextError = null;
-      } catch (error) {
-        nextPages = [];
-        nextError = error.toString();
-      }
+    if (index - 1 >= 0) {
+      _preload(paginator, previous);
+    }
+  }
+
+  void _preload(Paginator paginator, int index) async {
+    try {
+      final content = await widget.future(index);
+      preloads[index] = paginator.paginate(content);
+      errors[index] = null;
+    } on TimeoutException {
+      errors[index] = '出错了，请稍后再试';
+      preloads[index] = [];
+    } on SocketException {
+      errors[index] = '出错了，请稍后再试';
+      preloads[index] = [];
+    } on RangeError {
+      errors[index] = '出错了，请稍后再试';
+      preloads[index] = [];
+    } catch (error) {
+      errors[index] = error.runtimeType.toString();
+      preloads[index] = [];
     }
   }
 
   void copy() {
-    if (oldIndex < index) {
-      setState(() {
-        error = nextError;
-        pages = nextPages;
-      });
-    } else {
-      setState(() {
-        error = previousError;
-        pages = previousPages;
-      });
-    }
+    setState(() {
+      pages = preloads[index] ?? [];
+      error = errors[index];
+    });
   }
 
   void handleCached(int amount) {
@@ -404,7 +404,6 @@ class _BookReaderState extends State<BookReader>
     if (index < total - 1) {
       setState(() {
         cursor = 0;
-        oldIndex = index;
         index = index + 1;
       });
       fetchContent();
@@ -419,7 +418,6 @@ class _BookReaderState extends State<BookReader>
     if (index > 0) {
       setState(() {
         cursor = 0;
-        oldIndex = index;
         index = index - 1;
       });
       fetchContent();
@@ -458,7 +456,6 @@ class _BookReaderState extends State<BookReader>
     } else if (cursor + 1 >= length && index + 1 < total) {
       setState(() {
         cursor = 0;
-        oldIndex = index;
         index = index + 1;
       });
       widget.onChapterChanged?.call(index);
@@ -477,7 +474,6 @@ class _BookReaderState extends State<BookReader>
       calculateProgress();
     } else if (cursor == 0 && index > 0) {
       setState(() {
-        oldIndex = index;
         index = index - 1;
       });
       widget.onChapterChanged?.call(index);
@@ -501,7 +497,7 @@ class _BookReaderState extends State<BookReader>
     if (widget.onRefresh != null) {
       setState(() {
         error = null;
-        isLoading = true;
+        loading = true;
         showCache = false;
         showOverlay = false;
       });
@@ -512,7 +508,7 @@ class _BookReaderState extends State<BookReader>
         setState(() {
           cursor = 0;
           error = null;
-          isLoading = false;
+          loading = false;
           pages = paginator.paginate(content);
         });
         calculateProgress();
@@ -520,7 +516,7 @@ class _BookReaderState extends State<BookReader>
         setState(() {
           cursor = 0;
           error = '出错了，请稍后再试';
-          isLoading = false;
+          loading = false;
           pages = [];
         });
         calculateProgress();
@@ -528,7 +524,7 @@ class _BookReaderState extends State<BookReader>
         setState(() {
           cursor = 0;
           error = '出错了，请稍后再试';
-          isLoading = false;
+          loading = false;
           pages = [];
         });
         calculateProgress();
@@ -536,7 +532,7 @@ class _BookReaderState extends State<BookReader>
         setState(() {
           cursor = 0;
           error = '出错了，请稍后再试';
-          isLoading = false;
+          loading = false;
           pages = [];
         });
         calculateProgress();
@@ -544,7 +540,7 @@ class _BookReaderState extends State<BookReader>
         setState(() {
           cursor = 0;
           this.error = error.runtimeType.toString();
-          isLoading = false;
+          loading = false;
           pages = [];
         });
         calculateProgress();
@@ -566,17 +562,14 @@ class _BookReaderState extends State<BookReader>
     if (current <= 0) {
       setState(() {
         index = 0;
-        oldIndex = 0;
       });
     } else if (current >= total) {
       setState(() {
         index = total - 1;
-        oldIndex = 0;
       });
     } else {
       setState(() {
         index = current;
-        oldIndex = 0;
       });
     }
     fetchContent();

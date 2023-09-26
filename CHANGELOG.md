@@ -1,3 +1,7 @@
+## 0.1.17
+
+- fix preload error
+
 ## 0.1.16
 
 - calculate progress correctly while chapters is empty
