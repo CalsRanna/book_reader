@@ -124,31 +124,34 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.all(4),
-      child: Column(
-        children: [
-          SizedBox(height: MediaQuery.of(context).padding.top),
-          Row(
-            children: [
-              IconButton(
-                onPressed: widget.onPop,
-                icon: const Icon(Icons.arrow_back_ios),
-              ),
-              const Expanded(child: SizedBox()),
-              TextButton(
-                onPressed: widget.onCachePressed,
-                child: const Row(
-                  children: [Icon(Icons.file_download_outlined), Text('缓存')],
+      color: Theme.of(context).colorScheme.background,
+      child: Container(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.1),
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          children: [
+            SizedBox(height: MediaQuery.of(context).padding.top),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: widget.onPop,
+                  icon: const Icon(Icons.arrow_back_ios),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.more_horiz_outlined),
-                onPressed: () => handlePressed(context),
-              ),
-            ],
-          ),
-        ],
+                const Expanded(child: SizedBox()),
+                TextButton(
+                  onPressed: widget.onCachePressed,
+                  child: const Row(
+                    children: [Icon(Icons.file_download_outlined), Text('缓存')],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.more_horiz_outlined),
+                  onPressed: () => handlePressed(context),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -228,10 +231,48 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
                         child: const Column(
                           children: [
                             Icon(Icons.refresh_outlined),
-                            Text('刷新'),
+                            Text('强制刷新'),
                           ],
                         ),
-                      )
+                      ),
+                      // Row(
+                      //   children: [
+                      //     Expanded(
+                      //       child: TextButton(
+                      //         onPressed: handleRefresh,
+                      //         child: const Column(
+                      //           children: [
+                      //             Icon(Icons.refresh_outlined),
+                      //             Text('强制刷新'),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     Expanded(
+                      //       child: TextButton(
+                      //         onPressed: handleRefresh,
+                      //         child: const Column(
+                      //           children: [
+                      //             Icon(Icons.lock_outline),
+                      //             Text('归档'),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     Expanded(
+                      //       child: TextButton(
+                      //         onPressed: handleRefresh,
+                      //         child: const Column(
+                      //           children: [
+                      //             Icon(Icons.public_outlined),
+                      //             Text('原始网页'),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     const Expanded(child: SizedBox()),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),
@@ -359,75 +400,79 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              TextButton(
-                onPressed: onChapterUp,
-                child: const Text('上一章'),
-              ),
-              Expanded(
-                child: Material(
-                  child: Slider(
-                    value: progress,
-                    onChanged: onSliderChanged,
-                    onChangeEnd: onSliderChangedEnd,
+      color: Theme.of(context).colorScheme.background,
+      child: Container(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.1),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                TextButton(
+                  onPressed: onChapterUp,
+                  child: const Text('上一章'),
+                ),
+                Expanded(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Slider(
+                      value: progress,
+                      onChanged: onSliderChanged,
+                      onChangeEnd: onSliderChangedEnd,
+                    ),
                   ),
                 ),
-              ),
-              TextButton(
-                onPressed: onChapterDown,
-                child: const Text('下一章'),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton(
-                onPressed: onCataloguePressed,
-                child: const Column(
-                  children: [
-                    Icon(Icons.list),
-                    Text('目录'),
-                  ],
+                TextButton(
+                  onPressed: onChapterDown,
+                  child: const Text('下一章'),
                 ),
-              ),
-              TextButton(
-                onPressed: onSourcePressed,
-                child: const Column(
-                  children: [
-                    Icon(Icons.change_circle_outlined),
-                    Text('换源'),
-                  ],
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: onCataloguePressed,
+                  child: const Column(
+                    children: [
+                      Icon(Icons.list),
+                      Text('目录'),
+                    ],
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () => handleDarkModePressed(context),
-                child: Column(
-                  children: [
-                    Icon(darkMode
-                        ? Icons.light_mode_outlined
-                        : Icons.dark_mode_outlined),
-                    Text(darkMode ? '白天' : '夜间'),
-                  ],
+                TextButton(
+                  onPressed: onSourcePressed,
+                  child: const Column(
+                    children: [
+                      Icon(Icons.change_circle_outlined),
+                      Text('换源'),
+                    ],
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: onSettingPressed,
-                child: const Column(
-                  children: [
-                    Icon(Icons.settings),
-                    Text('设置'),
-                  ],
+                TextButton(
+                  onPressed: () => handleDarkModePressed(context),
+                  child: Column(
+                    children: [
+                      Icon(darkMode
+                          ? Icons.light_mode_outlined
+                          : Icons.dark_mode_outlined),
+                      Text(darkMode ? '白天' : '夜间'),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                TextButton(
+                  onPressed: onSettingPressed,
+                  child: const Column(
+                    children: [
+                      Icon(Icons.settings),
+                      Text('设置'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

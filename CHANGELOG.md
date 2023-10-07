@@ -1,3 +1,7 @@
+## 0.1.19
+
+- update overlay background color
+
 ## 0.1.18
 
 - fix status bar color not change error
