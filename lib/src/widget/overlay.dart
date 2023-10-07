@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BookOverlay extends StatefulWidget {
   const BookOverlay({
@@ -405,7 +406,7 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: onDarkModePressed,
+                onPressed: () => handleDarkModePressed(context),
                 child: Column(
                   children: [
                     Icon(darkMode
@@ -429,5 +430,17 @@ class _BookPageOverlayBottomBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void handleDarkModePressed(BuildContext context) {
+    onDarkModePressed?.call();
+    final brightness = Theme.of(context).brightness;
+    SystemUiOverlayStyle style;
+    if (brightness == Brightness.dark) {
+      style = SystemUiOverlayStyle.dark;
+    } else {
+      style = SystemUiOverlayStyle.light;
+    }
+    SystemChrome.setSystemUIOverlayStyle(style);
   }
 }

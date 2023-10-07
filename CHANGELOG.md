@@ -1,3 +1,7 @@
+## 0.1.18
+
+- fix status bar color not change error
+
 ## 0.1.17
 
 - fix preload error
