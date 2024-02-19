@@ -218,6 +218,16 @@ class _BookPageOverlayAppBarState extends State<_BookPageOverlayAppBar> {
                           ),
                           const Spacer(),
                           OutlinedButton(
+                            style: const ButtonStyle(
+                              minimumSize: MaterialStatePropertyAll(Size.zero),
+                              padding: MaterialStatePropertyAll(
+                                EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 4,
+                                ),
+                              ),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
                             onPressed: handleDetailPressed,
                             child: const Text('详情'),
                           )

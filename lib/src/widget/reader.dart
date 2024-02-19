@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:book_reader/book_reader.dart';
 import 'package:book_reader/src/tool/paginator.dart';
 import 'package:book_reader/src/widget/overlay.dart';
@@ -145,6 +146,7 @@ class _BookReaderState extends State<BookReader>
   late int total;
   Size size = Size.zero;
   late StreamSubscription<HardwareButton>? subscription;
+  int batteryLevel = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +163,7 @@ class _BookReaderState extends State<BookReader>
               width: double.infinity,
             ),
           BookPage(
+            batteryLevel: batteryLevel,
             cursor: min(cursor, pages.length - 1),
             eInkMode: widget.eInkMode,
             error: error,
@@ -257,6 +260,14 @@ class _BookReaderState extends State<BookReader>
         }
       });
     }
+    calculateBattery();
+  }
+
+  Future<void> calculateBattery() async {
+    final batteryLevel = await Battery().batteryLevel;
+    setState(() {
+      this.batteryLevel = batteryLevel;
+    });
   }
 
   void calculateProgress() {
@@ -411,6 +422,7 @@ class _BookReaderState extends State<BookReader>
     } else {
       widget.onMessage?.call('已经是最后一章');
     }
+    calculateBattery();
     widget.onProgressChanged?.call(cursor);
   }
 
@@ -425,6 +437,7 @@ class _BookReaderState extends State<BookReader>
     } else {
       widget.onMessage?.call('已经是第一章');
     }
+    calculateBattery();
     widget.onProgressChanged?.call(cursor);
   }
 

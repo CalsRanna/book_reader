@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class BookPage extends StatelessWidget {
   const BookPage({
     super.key,
+    required this.batteryLevel,
     required this.cursor,
     required this.eInkMode,
     this.error,
@@ -21,6 +22,7 @@ class BookPage extends StatelessWidget {
     this.onSourcePressed,
   });
 
+  final int batteryLevel;
   final int cursor;
   final bool eInkMode;
   final String? error;
@@ -100,6 +102,7 @@ class BookPage extends StatelessWidget {
           ),
           Expanded(child: child),
           _BookPageFooter(
+            batteryLevel: batteryLevel,
             cursor: cursor,
             length: pages.length,
             loading: loading,
@@ -165,7 +168,6 @@ class _BookPageHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final onBackground = colorScheme.onBackground;
-
     return Container(
       color: Colors.transparent,
       padding: padding,
@@ -173,7 +175,9 @@ class _BookPageHeader extends StatelessWidget {
         cursor > 0 ? title : name,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: style.copyWith(color: onBackground.withOpacity(0.5)),
+        style: style.copyWith(
+          color: style.color ?? onBackground.withOpacity(0.5),
+        ),
       ),
     );
   }
@@ -181,6 +185,7 @@ class _BookPageHeader extends StatelessWidget {
 
 class _BookPageFooter extends StatelessWidget {
   const _BookPageFooter({
+    required this.batteryLevel,
     required this.cursor,
     required this.length,
     required this.loading,
@@ -189,6 +194,7 @@ class _BookPageFooter extends StatelessWidget {
     required this.style,
   });
 
+  final int batteryLevel;
   final int cursor;
   final int length;
   final bool loading;
@@ -202,31 +208,59 @@ class _BookPageFooter extends StatelessWidget {
     if (!loading && length > 0) {
       left = [
         Text('${cursor + 1}/$length'),
-        const SizedBox(width: 24),
+        const SizedBox(width: 16),
         Text('${(progress * 100).toStringAsFixed(2)}%'),
       ];
     }
-    final now = DateTime.now();
-    final hour = now.hour.toString().padLeft(2, '0');
-    final minute = now.minute.toString().padLeft(2, '0');
+    final now = DateTime.now().toString().substring(11, 16);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final onBackground = colorScheme.onBackground;
-
+    final primary = colorScheme.primary;
+    final onBackground = colorScheme.outline;
+    final battery = Row(
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(2),
+            color: style.color ?? onBackground.withOpacity(0.25),
+          ),
+          height: 8,
+          width: 16,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2),
+              color: primary.withOpacity(0.5),
+            ),
+            height: 8,
+            width: 16 * (batteryLevel / 100 + 0.5),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(1),
+              bottomRight: Radius.circular(1),
+            ),
+            color: style.color ?? onBackground.withOpacity(0.25),
+          ),
+          height: 4,
+          width: 1,
+        ),
+      ],
+    );
+    List<Widget> right = [Text(now), const SizedBox(width: 8), battery];
     return Container(
       color: Colors.transparent,
       padding: padding,
       child: DefaultTextStyle.merge(
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: style.copyWith(color: onBackground.withOpacity(0.5)),
-        child: Row(
-          children: [
-            ...left,
-            const Spacer(),
-            Text('$hour:$minute'),
-          ],
+        style: style.copyWith(
+          color: style.color ?? onBackground.withOpacity(0.5),
+          height: 1,
         ),
+        child: Row(children: [...left, const Spacer(), ...right]),
       ),
     );
   }
