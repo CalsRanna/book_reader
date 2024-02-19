@@ -233,7 +233,7 @@ class _BookPageFooter extends StatelessWidget {
               color: primary.withOpacity(0.5),
             ),
             height: 8,
-            width: 16 * (batteryLevel / 100 + 0.5),
+            width: 16 * (batteryLevel / 100),
           ),
         ),
         Container(
