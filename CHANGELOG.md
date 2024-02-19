@@ -1,3 +1,7 @@
+## 0.1.20
+
+- display battery in footer
+
 ## 0.1.19
 
 - update overlay background color
