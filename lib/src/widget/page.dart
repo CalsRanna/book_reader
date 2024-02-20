@@ -82,7 +82,23 @@ class BookPage extends StatelessWidget {
           ),
         );
       } else {
-        child = Center(child: Text('暂无内容', style: theme.pageStyle));
+        child = Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('暂无内容', style: theme.pageStyle),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                      onPressed: onSourcePressed, child: const Text('换源')),
+                  ElevatedButton(onPressed: onRefresh, child: const Text('重试')),
+                ],
+              ),
+            ],
+          ),
+        );
       }
     }
 
@@ -117,9 +133,11 @@ class BookPage extends StatelessWidget {
 
   void handleHorizontalDrag(BuildContext context, DragEndDetails details) {
     if (!modes.contains(PageTurningMode.drag)) return;
-    if (details.primaryVelocity! < 0) {
+    final velocity = details.primaryVelocity;
+    if (velocity == null) return;
+    if (velocity < 0) {
       onPageDown?.call();
-    } else {
+    } else if (velocity > 0) {
       onPageUp?.call();
     }
   }

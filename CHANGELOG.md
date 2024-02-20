@@ -1,3 +1,7 @@
+## 0.1.22
+
+- optimize horizontal drag
+
 ## 0.1.21
 
 - fix battery error

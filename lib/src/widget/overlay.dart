@@ -348,31 +348,34 @@ class _BookPageOverlayCache extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => handleCached(100),
-              child: const Text('100章'),
+      color: Theme.of(context).colorScheme.background,
+      child: Container(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.1),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => handleCached(100),
+                child: const Text('100章'),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => handleCached(200),
-              child: const Text('200章'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => handleCached(200),
+                child: const Text('200章'),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => handleCached(0),
-              child: const Text('全部'),
-            ),
-          )
-        ],
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => handleCached(0),
+                child: const Text('全部'),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
