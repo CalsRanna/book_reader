@@ -146,7 +146,7 @@ class _BookReaderState extends State<BookReader>
   late int total;
   Size size = Size.zero;
   late StreamSubscription<HardwareButton>? subscription;
-  int batteryLevel = 0;
+  int batteryLevel = 100;
 
   @override
   Widget build(BuildContext context) {
@@ -264,9 +264,14 @@ class _BookReaderState extends State<BookReader>
   }
 
   Future<void> calculateBattery() async {
-    final batteryLevel = await Battery().batteryLevel;
+    int level;
+    try {
+      level = await Battery().batteryLevel;
+    } catch (error) {
+      level = 100;
+    }
     setState(() {
-      this.batteryLevel = batteryLevel;
+      batteryLevel = level;
     });
   }
 
@@ -422,7 +427,6 @@ class _BookReaderState extends State<BookReader>
     } else {
       widget.onMessage?.call('已经是最后一章');
     }
-    calculateBattery();
     widget.onProgressChanged?.call(cursor);
   }
 
@@ -437,7 +441,6 @@ class _BookReaderState extends State<BookReader>
     } else {
       widget.onMessage?.call('已经是第一章');
     }
-    calculateBattery();
     widget.onProgressChanged?.call(cursor);
   }
 
@@ -476,6 +479,7 @@ class _BookReaderState extends State<BookReader>
     } else {
       widget.onMessage?.call('已经是最后一页');
     }
+    calculateBattery();
     widget.onProgressChanged?.call(cursor);
   }
 
@@ -499,6 +503,7 @@ class _BookReaderState extends State<BookReader>
     } else {
       widget.onMessage?.call('已经是第一页');
     }
+    calculateBattery();
     widget.onProgressChanged?.call(cursor);
   }
 
